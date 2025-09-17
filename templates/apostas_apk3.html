@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tela de Apostas - Sysbanca</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* Estilos anteriores mantidos */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #070707, #161d16, #00a000);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      gap: 30px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      width: 600px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    .bilhete-container {
+      position: relative;
+      width: 450px;
+    }
+
+    /* Alteração no fundo do bilhete para degrade preto */
+    .bilhete {
+      background: linear-gradient(135deg, #000000, #1a1a1a, #2d2d2d);
+      color: #fff; /* Alterado para branco para melhor contraste */
+      padding: 15px;
+      border-radius: 12px;
+      width: 100%;
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      font-weight: bold;
+      font-size: 15px;
+      line-height: 1.5;
+      white-space: pre-line;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #444;
+      overflow: auto;
+      transition: all 0.3s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 30px;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .form-group {
+      margin-bottom: 22.5px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 15px;
+      margin-top: 7.5px;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.5);
+    }
+
+    textarea {
+      resize: none;
+      height: 105px;
+      font-family: 'Courier New', monospace;
+    }
+
+    #total {
+      background: #222;
+      color: #0f0;
+      font-weight: bold;
+      font-size: 21px;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 15px;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 21px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #btnConfirmar {
+      background: #ffcc00;
+      color: #000;
+    }
+
+    #btnConfirmar:hover {
+      background: #e6b800;
+      transform: translateY(-2px);
+    }
+
+    #btnPdf {
+      display: none;
+      background: #ff3333;
+    }
+
+    #btnPdf:hover {
+      background: #cc0000;
+      transform: translateY(-2px);
+    }
+
+    #btnLimpar {
+      background: #666;
+    }
+
+    #btnLimpar:hover {
+      background: #555;
+      transform: translateY(-2px);
+    }
+
+    .valor-info {
+      font-size: 15px;
+      color: #ddd;
+      margin-top: 4.5px;
+    }
+
+    .operacao-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .operacao-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .operacao-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .operacao-btn.active {
+      background: #00c6ff;
+      font-weight: bold;
+    }
+
+    .aposta-info {
+      font-size: 14px;
+      color: #ffcc00;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .aposta-error {
+      font-size: 14px;
+      color: #ff6666;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .aposta-success {
+      font-size: 14px;
+      color: #66ff66;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .input-hint {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    input:focus + .input-hint {
+      opacity: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .switch-container {
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .bilhete, .bilhete * {
+        visibility: visible;
+        font-family: 'Helvetica', 'Arial', sans-serif !important;
+        font-weight: bold !important;
+        color: #000 !important; /* Mantém preto na impressão para economizar tinta */
+        background: #fff !important;
+      }
+      .bilhete {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+        border: none;
+        font-size: 12px;
+        padding: 10px;
+        min-height: auto;
+        height: auto !important;
+      }
+    }
+
+    @media (max-width: 1300px) {
+      body {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .container, .bilhete-container {
+        width: 90%;
+        max-width: 600px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+        gap: 20px;
+      }
+      
+      .container {
+        padding: 20px;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+      
+      input, select, textarea {
+        padding: 12px;
+        font-size: 16px;
+      }
+      
+      button {
+        font-size: 18px;
+        padding: 12px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+    }
+
+    .shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modalidade-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 5px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .bilhete-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .bilhete-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .bilhete-action-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .bilhete-action-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .valor-sugerido {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .valor-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .valor-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .valor-btn.active {
+      background: #ffcc00;
+      color: #000;
+    }
+
+    .historico-apostas {
+      position: absolute;
+      background: white;
+      color: #000;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      padding: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .historico-item {
+      padding: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .historico-item:hover {
+      background: #f0f0f0;
+    }
+
+    .premiacao-info {
+      font-size: 12px;
+      color: #ddd;
+      margin-top: 5px;
+    }
+
+    .currency-input {
+      text-align: right;
+      direction: rtl;
+    }
+    
+    .aposta-formatada {
+      letter-spacing: 0.5px;
+    }
+    
+    /* NOVO ESTILO: Numeração da poule */
+    .numero-poule {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #333, #555);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎲 Apostas Sysbanca</h2>
+
+    <div class="form-group">
+      <label for="extracao">Escolha a Extração</label>
+      <select id="extracao">
+        {% for extracao in extracoes %}
+          <option value="{{ extracao.extracao }}">{{ extracao.extracao }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="modalidade">Escolha a Modalidade</label>
+      <select id="modalidade" onchange="atualizarValidacaoAposta()">
+        {% for modalidade in modalidades %}
+          <option value="{{ modalidade.modalidade }}">{{ modalidade.modalidade }}</option>
+        {% endfor %}
+      </select>
+      <div id="modalidadeInfo" class="modalidade-info"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="aposta">Digite a(s) Aposta(s)</label>
+      <textarea id="aposta" class="aposta-formatada" placeholder="Ex: 1234 5678 9012 (separadas por espaço)" oninput="validarAposta()" onkeydown="limitarCaracteres(event)"></textarea>
+      <div id="apostaInfo" class="aposta-info"></div>
+      <div id="apostaError" class="aposta-error"></div>
+      <div id="apostaSuccess" class="aposta-success"></div>
+      <div class="switch-container">
+        <label class="switch">
+          <input type="checkbox" id="repetirAposta">
+          <span class="slider"></span>
+        </label>
+        <span>Repetir aposta com outra premiação</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="premiacao">Premiação</label>
+      <select id="premiacao" onchange="calcularTotal()">
+        <option value="1P">1P</option>
+        <option value="1/2P">1/2P</option>
+        <option value="1/3P">1/3P</option>
+        <option value="1/4P">1/4P</option>
+        <option value="1/5P">1/5P</option>
+        <option value="1/6P">1/6P</option>
+        <option value="1/7P">1/7P</option>
+        <option value="1/8P">1/8P</option>
+        <option value="1/9P">1/9P</option>
+        <option value="1/10P">1/10P</option>
+        <option value="6/10P">6/10P</option>
+        <option value="1P e 1/5P">1P e 1/5P</option>
+        <option value="1P e 1/10P">1P e 1/10P</option>
+      </select>
+      <div class="premiacao-info" id="premiacaoInfo"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="valor">Valor Unitário (R$)</label>
+      <input type="text" id="valor" class="currency-input" placeholder="0,00" oninput="formatarMoeda(this); calcularTotal()">
+      <span class="input-hint">0,00</span>
+      <div class="valor-info">Valores acima de R$ 2,00 em milhar geram brinde</div>
+      <div class="valor-sugerido">
+        <button class="valor-btn" onclick="definirValor(1)">R$ 1,00</button>
+        <button class="valor-btn" onclick="definirValor(2)">R$ 2,00</button>
+        <button class="valor-btn" onclick="definirValor(5)">R$ 5,00</button>
+        <button class="valor-btn" onclick="definirValor(10)">R$ 10,00</button>
+      </div>
+      <div class="operacao-group">
+        <div class="operacao-btn active" id="btnMultiplicar" onclick="toggleOperacao('multiplicar')">Multiplicar</div>
+        <div class="operacao-btn" id="btnDividir" onclick="toggleOperacao('dividir')">Dividir</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="quantidade">Quantidade de Jogos</label>
+      <input type="number" id="quantidade" readonly>
+    </div>
+
+    <div class="form-group">
+      <label for="total">Valor Total</label>
+      <input type="text" id="total" readonly>
+    </div>
+
+    <div class="button-group">
+      <button id="btnConfirmar" onclick="exibirResultado()">
+        <span class="icon">✓</span> Confirmar Aposta
+      </button>
+      <button id="btnPdf" onclick="imprimirPDF()">
+        <span class="icon">📄</span> Imprimir PDF
+      </button>
+      <button id="btnLimpar" onclick="limparFormulario()">
+        <span class="icon">🗑️</span> Limpar
+      </button>
+    </div>
+  </div>
+
+  <div class="bilhete-container">
+    <div class="bilhete-header">
+      <h3>Bilhete de Aposta</h3>
+      <div class="bilhete-actions">
+        <button class="bilhete-action-btn" onclick="copiarBilhete()">Copiar</button>
+        <button class="bilhete-action-btn" onclick="limparBilhete()">Limpar</button>
+      </div>
+    </div>
+    <div class="bilhete" id="bilhete">Seu bilhete aparecerá aqui após confirmar a aposta.</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let operacao = 'multiplicar';
+    let numeroBilhete = 1;
+    let modalidadeAtual = 'Milhar';
+    let maxCaracteres = 4;
+    let infoModalidades = {};
+    let infoPremiacoes = {
+      "1P": "Primeiro prêmio.",
+      "1/2P": "Primeiro e segundo prêmios.",
+      "1/3P": "Primeiro, segundo e terceiro prêmios.",
+      "1/4P": "Primeiro, segundo, terceiro e quarto prêmios.",
+      "1/5P": "Primeiro ao quinto prêmio.",
+      "1/6P": "Primeiro ao sexto prêmio.",
+      "1/7P": "Primeiro ao sétimo prêmio.",
+      "1/8P": "Primeiro ao oitavo prêmio.",
+      "1/9P": "Primeiro ao nono prêmio.",
+      "1/10P": "Primeiro ao décimo prêmio.",
+      "6/10P": "Sexto ao décimo prêmio.",
+      "1P e 1/5P": "Primeiro e do primeiro ao quinto prêmio.",
+      "1P e 1/10P": "Primeiro e do primeiro ao décimo prêmio."
+    };
+
+    function formatarMoeda(input) {
+      let valor = input.value.replace(/\D/g, '');
+      if (valor.length === 0) {
+        input.value = '';
+        return;
+      }
+      let reais = valor.slice(0, -2);
+      let centavos = valor.slice(-2);
+      input.value = `${reais},${centavos}`;
+    }
+
+    function toggleOperacao(novaOperacao) {
+      operacao = novaOperacao;
+      const btnMultiplicar = document.getElementById('btnMultiplicar');
+      const btnDividir = document.getElementById('btnDividir');
+      if (novaOperacao === 'multiplicar') {
+        btnMultiplicar.classList.add('active');
+        btnDividir.classList.remove('active');
+      } else {
+        btnMultiplicar.classList.remove('active');
+        btnDividir.classList.add('active');
+      }
+      calcularTotal();
+    }
+
+    function atualizarValidacaoAposta() {
+      const modalidadeSelect = document.getElementById('modalidade');
+      const apostaTextarea = document.getElementById('aposta');
+      const modalidade = modalidadeSelect.value;
+      modalidadeAtual = modalidade;
+      const infoDiv = document.getElementById('modalidadeInfo');
+      
+      let info = "";
+      switch (modalidade) {
+        case "Milhar":
+          maxCaracteres = 4;
+          info = "Ex: 1234. Apenas 4 dígitos.";
+          break;
+        case "Centena":
+          maxCaracteres = 3;
+          info = "Ex: 123. Apenas 3 dígitos.";
+          break;
+        case "Dezena":
+          maxCaracteres = 2;
+          info = "Ex: 12. Apenas 2 dígitos.";
+          break;
+        case "Grupo":
+          maxCaracteres = 2;
+          info = "Ex: 01 ou 25. Apenas 2 dígitos.";
+          break;
+        case "Milhar Invertida":
+          maxCaracteres = 4;
+          info = "Ex: 1234. Apenas 4 dígitos.";
+          break;
+        case "Centena Invertida":
+          maxCaracteres = 3;
+          info = "Ex: 123. Apenas 3 dígitos.";
+          break;
+        case "Milhar e Centena Invertida":
+          maxCaracteres = 4;
+          info = "Ex: 1234. Apenas 4 dígitos.";
+          break;
+        case "Milhar e Centena":
+          maxCaracteres = 4;
+          info = "Ex: 1234. Apenas 4 dígitos.";
+          break;
+        case "Duque de Dezena":
+        case "Duque de Dezena Combinado":
+          maxCaracteres = 5;
+          info = "Ex: 12 34. Apenas 2 dezenas (4 dígitos) ou 5 para combinado.";
+          break;
+        case "Terno de Dezena":
+        case "Terno de Dezena Combinado":
+        case "Terno de Dezena Cercado":
+          maxCaracteres = 8;
+          info = "Ex: 12 34 56. Apenas 3 dezenas (6 dígitos).";
+          break;
+        case "Grupo Combinado":
+        case "Grupo Combinado Cercado":
+        case "Duque de Grupo":
+          maxCaracteres = 5;
+          info = "Ex: 01 02. Apenas 2 grupos.";
+          break;
+        case "Terno de Grupo":
+        case "Terno de Grupo Combinado":
+        case "Terno de Grupo Cercado":
+          maxCaracteres = 8;
+          info = "Ex: 01 02 03. Apenas 3 grupos.";
+          break;
+        case "Passe Vai":
+          maxCaracteres = 5;
+          info = "Ex: 01 02. Apenas 2 grupos.";
+          break;
+        case "Passe Vai e Vem":
+          maxCaracteres = 5;
+          info = "Ex: 01 02. Apenas 2 grupos.";
+          break;
+        default:
+          maxCaracteres = 100; // Valor padrão
+          info = "Verifique o formato da sua aposta.";
+          break;
+      }
+      
+      infoDiv.innerText = info;
+      infoDiv.style.display = 'block';
+      apostaTextarea.maxLength = maxCaracteres;
+      validarAposta();
+    }
+
+    function validarAposta() {
+      const apostaTextarea = document.getElementById('aposta');
+      const aposta = apostaTextarea.value.trim();
+      const apostaInfoDiv = document.getElementById('apostaInfo');
+      const apostaErrorDiv = document.getElementById('apostaError');
+      const apostaSuccessDiv = document.getElementById('apostaSuccess');
+      const quantidadeInput = document.getElementById('quantidade');
+      const modalidade = document.getElementById('modalidade').value;
+      const valor = document.getElementById('valor').value;
+      
+      const apostas = aposta.split(/\s+/).filter(a => a.length > 0);
+      let apostasValidas = [];
+      let apostasInvalidas = [];
+
+      apostas.forEach(a => {
+        let isValid = true;
+        
+        switch (modalidade) {
+          case "Milhar":
+          case "Milhar Invertida":
+          case "Milhar e Centena Invertida":
+          case "Milhar e Centena":
+            if (!/^\d{4}$/.test(a)) isValid = false;
+            break;
+          case "Centena":
+          case "Centena Invertida":
+            if (!/^\d{3}$/.test(a)) isValid = false;
+            break;
+          case "Dezena":
+            if (!/^\d{2}$/.test(a)) isValid = false;
+            break;
+          case "Grupo":
+            if (!/^\d{1,2}$/.test(a) || parseInt(a) < 1 || parseInt(a) > 25) isValid = false;
+            break;
+          case "Duque de Dezena":
+          case "Duque de Dezena Combinado":
+          case "Terno de Dezena":
+          case "Terno de Dezena Combinado":
+          case "Terno de Dezena Cercado":
+          case "Grupo Combinado":
+          case "Grupo Combinado Cercado":
+          case "Duque de Grupo":
+          case "Terno de Grupo":
+          case "Terno de Grupo Combinado":
+          case "Terno de Grupo Cercado":
+          case "Passe Vai":
+          case "Passe Vai e Vem":
+            // A validação para estas modalidades é mais complexa e deve ser tratada no backend.
+            // Aqui, apenas validamos o formato geral de entrada, por exemplo, se são números separados por espaço.
+            if (apostas.length === 1 && !/^\d+$/.test(aposta)) {
+              isValid = false;
+            }
+            break;
+          default:
+            isValid = true;
+            break;
+        }
+
+        if (isValid) {
+          apostasValidas.push(a);
+        } else {
+          apostasInvalidas.push(a);
+        }
+      });
+      
+      if (apostas.length === 0) {
+        apostaInfoDiv.innerText = "Aguardando sua aposta...";
+        apostaInfoDiv.style.display = 'block';
+        apostaErrorDiv.innerText = "";
+        apostaSuccessDiv.innerText = "";
+      } else if (apostasInvalidas.length > 0) {
+        apostaInfoDiv.innerText = "";
+        apostaErrorDiv.innerText = `Apostas inválidas: ${apostasInvalidas.join(', ')}. Por favor, corrija.`;
+        apostaErrorDiv.style.display = 'block';
+        apostaSuccessDiv.innerText = "";
+      } else {
+        apostaInfoDiv.innerText = "";
+        apostaErrorDiv.innerText = "";
+        apostaSuccessDiv.innerText = `Apostas válidas: ${apostasValidas.join(', ')}.`;
+        apostaSuccessDiv.style.display = 'block';
+      }
+      
+      quantidadeInput.value = apostasValidas.length;
+      calcularTotal();
+    }
+    
+    function calcularTotal() {
+      const valorInput = document.getElementById('valor');
+      const quantidadeInput = document.getElementById('quantidade');
+      const totalInput = document.getElementById('total');
+      const valorString = valorInput.value.replace(',', '.');
+      const valor = parseFloat(valorString || 0);
+      const quantidade = parseInt(quantidadeInput.value || 0);
+      let total;
+
+      if (operacao === 'multiplicar') {
+        total = valor * quantidade;
+      } else {
+        total = quantidade > 0 ? valor / quantidade : 0;
+      }
+      totalInput.value = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function gerarBilhete() {
+      const extracao = document.getElementById('extracao').value;
+      const modalidade = document.getElementById('modalidade').value;
+      const premiacao = document.getElementById('premiacao').value;
+      const aposta = document.getElementById('aposta').value.trim();
+      const valor = document.getElementById('valor').value;
+      const total = document.getElementById('total').value;
+      
+      const apostasFormatadas = aposta.replace(/\s+/g, ' ');
+
+      const dataAtual = new Date();
+      const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+      const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      let bilhete = "";
+      bilhete += "---------------------------------------\n";
+      bilhete += "            BILHETE DE APOSTA          \n";
+      bilhete += "---------------------------------------\n";
+      bilhete += `BILHETE: #${String(numeroBilhete).padStart(5, '0')}            \n`;
+      bilhete += `DATA: ${dataFormatada}           HORA: ${horaFormatada}\n`;
+      bilhete += `EXTRAÇÃO: ${extracao}\n`;
+      bilhete += `MODALIDADE: ${modalidade}\n`;
+      bilhete += `APOSTA(S): ${apostasFormatadas}\n`;
+      bilhete += `PREMIAÇÃO: ${premiacao}\n`;
+      bilhete += `VALOR UNITÁRIO: R$ ${valor}\n`;
+      bilhete += "---------------------------------------\n";
+      bilhete += `TOTAL: ${total}\n`;
+      bilhete += "---------------------------------------\n";
+      bilhete += "  Boa Sorte! Jogue com responsabilidade.\n";
+      bilhete += "---------------------------------------\n";
+      
+      return bilhete;
+    }
+
+    async function salvarAposta() {
+      const extracao = document.getElementById('extracao').value;
+      const modalidade = document.getElementById('modalidade').value;
+      const premiacao = document.getElementById('premiacao').value;
+      const aposta = document.getElementById('aposta').value.trim();
+      const valorString = document.getElementById('valor').value.replace(',', '.');
+      const valor = parseFloat(valorString);
+      const quantidade = parseInt(document.getElementById('quantidade').value);
+      const totalString = document.getElementById('total').value.replace('R$ ', '').replace(',', '.');
+      const total = parseFloat(totalString);
+
+      const dadosAposta = {
+        extracao: extracao,
+        modalidade: modalidade,
+        premiacao: premiacao,
+        aposta: aposta,
+        valor_unitario: valor,
+        quantidade_jogos: quantidade,
+        valor_total: total
+      };
+
+      try {
+        const response = await fetch('/salvar_aposta', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dadosAposta),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          mostrarToast(data.message, 'success');
+          return true; // Sucesso
+        } else {
+          mostrarToast(data.error, 'error');
+          return false; // Falha
+        }
+      } catch (error) {
+        console.error('Erro ao salvar a aposta:', error);
+        mostrarToast('Erro ao conectar com o servidor.', 'error');
+        return false; // Falha
+      }
+    }
+    
+    async function exibirResultado() {
+      const apostaTextArea = document.getElementById('aposta');
+      const aposta = apostaTextArea.value.trim();
+      if (!aposta) {
+        apostaTextArea.classList.add('shake');
+        mostrarToast('Por favor, digite a(s) aposta(s) antes de confirmar.', 'error');
+        setTimeout(() => apostaTextArea.classList.remove('shake'), 500);
+        return;
+      }
+      
+      const apostaErrorDiv = document.getElementById('apostaError');
+      if (apostaErrorDiv.innerText.length > 0) {
+        mostrarToast('Por favor, corrija as apostas inválidas.', 'error');
+        return;
+      }
+
+      const sucesso = await salvarAposta();
+      if (sucesso) {
+        const bilheteDiv = document.getElementById('bilhete');
+        const bilhete = gerarBilhete();
+        bilheteDiv.innerText = bilhete;
+        document.getElementById('btnPdf').style.display = 'flex';
+        numeroBilhete++;
+      }
+    }
+
+    function limparFormulario() {
+      document.getElementById('extracao').value = document.getElementById('extracao').options[0].value;
+      document.getElementById('modalidade').value = document.getElementById('modalidade').options[0].value;
+      document.getElementById('aposta').value = '';
+      document.getElementById('premiacao').value = '1P';
+      document.getElementById('valor').value = '';
+      document.getElementById('quantidade').value = '';
+      document.getElementById('total').value = 'R$ 0,00';
+      document.getElementById('bilhete').innerText = 'Seu bilhete aparecerá aqui após confirmar a aposta.';
+      document.getElementById('btnPdf').style.display = 'none';
+      document.getElementById('apostaInfo').innerText = "Aguardando sua aposta...";
+      document.getElementById('apostaError').innerText = "";
+      document.getElementById('apostaSuccess').innerText = "";
+      document.getElementById('modalidadeInfo').style.display = 'none';
+      document.getElementById('premiacaoInfo').innerText = infoPremiacoes[document.getElementById('premiacao').value] || "";
+      document.getElementById('repetirAposta').checked = false;
+      document.querySelectorAll('.valor-btn').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function imprimirPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const bilheteContent = document.getElementById('bilhete').innerText;
+
+      doc.setFont('Courier');
+      doc.setFontSize(10);
+      doc.text(bilheteContent, 10, 10);
+      doc.save("bilhete.pdf");
+    }
+
+    function copiarBilhete() {
+      const bilheteContent = document.getElementById('bilhete').innerText;
+      navigator.clipboard.writeText(bilheteContent).then(() => {
+        mostrarToast('Bilhete copiado!', 'success');
+      }).catch(err => {
+        console.error('Erro ao copiar bilhete: ', err);
+        mostrarToast('Erro ao copiar bilhete.', 'error');
+      });
+    }
+
+    function limparBilhete() {
+      document.getElementById('bilhete').innerText = 'Seu bilhete aparecerá aqui após confirmar a aposta.';
+      document.getElementById('btnPdf').style.display = 'none';
+      mostrarToast('Bilhete limpo.', 'success');
+    }
+
+    function mostrarToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      if (type === 'error') {
+        toast.style.background = 'rgba(255, 51, 51, 0.8)';
+      } else if (type === 'success') {
+        toast.style.background = 'rgba(0, 102, 0, 0.8)';
+      } else {
+        toast.style.background = 'rgba(0, 0, 0, 0.8)';
+      }
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    function definirValor(valor) {
+      document.getElementById('valor').value = valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      calcularTotal();
+      
+      document.querySelectorAll('.valor-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Inicializar a validação
+    window.onload = function() {
+      const valorInput = document.getElementById('valor');
+      valorInput.classList.add('currency-input');
+      
+      atualizarValidacaoAposta();
+      document.getElementById('aposta').addEventListener('input', validarAposta);
+      document.getElementById('aposta').addEventListener('input', calcularTotal);
+      
+      valorInput.addEventListener('blur', function() {
+        formatarMoeda(this);
+      });
+      
+      document.getElementById('premiacao').addEventListener('change', function() {
+        document.getElementById('premiacaoInfo').innerText = infoPremiacoes[this.value] || "";
+      });
+      
+      document.getElementById('premiacaoInfo').innerText = infoPremiacoes[document.getElementById('premiacao').value] || "";
+      
+      // Atualizar o número da poule ao carregar a página
+      const poule = `{{ poule.poule }}`;
+      if (poule && poule !== 'None') {
+        const h2 = document.querySelector('h2');
+        const spanPoule = document.createElement('span');
+        spanPoule.className = 'numero-poule';
+        spanPoule.innerText = `Poule: ${poule}`;
+        h2.appendChild(spanPoule);
+      }
+    };
+  </script>
+</body>
+</html>
