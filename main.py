@@ -1,11 +1,4 @@
-# main.py
-
-# Importa as instâncias de 'app' e 'db' do seu arquivo de configuração
 from config_db import app, db 
-
-# Importa seus modelos para que db.create_all() os reconheça
-# Assumindo que seus modelos estão em um arquivo chamado 'models.py' no mesmo nível
-# ou em uma pasta 'models' com um __init__.py
 from models.models import Contrato, Produto, ContratoProduto # <--- ADICIONE ESTA LINHA
 
 
@@ -13,11 +6,17 @@ from models.models import Contrato, Produto, ContratoProduto # <--- ADICIONE EST
 from routes.auth import auth_route
 from routes.home import home_route
 from routes.contratos import contrato_route
+from routes.contratoproduto import contrato_produto_route  
+from routes.nota_fiscal import nota_fiscal_route
+from routes.controlegasto import controle_gasto_route
 
 # Registra os blueprints
 app.register_blueprint(auth_route)
 app.register_blueprint(home_route)
 app.register_blueprint(contrato_route)
+app.register_blueprint(contrato_produto_route )
+app.register_blueprint(nota_fiscal_route)
+app.register_blueprint(controle_gasto_route)
 
 if __name__ == '__main__':
     # Este bloco é executado apenas quando o script é rodado diretamente.

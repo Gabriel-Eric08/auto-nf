@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Nota Fiscal</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f9f9f9;
+        }
+        .navbar-custom {
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-bottom: 3px solid #d81b60;
+        }
+        .navbar-custom .nav-link,
+        .navbar-custom .navbar-brand {
+            color: #d81b60;
+            font-weight: bold;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #ff69b4;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+        .dropdown-item {
+            color: #d81b60;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-item:hover {
+            background-color: #fff0f5;
+        }
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .card-custom {
+            border: 1px solid #d81b60;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .btn-custom {
+            background-color: #d81b60;
+            color: white;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #ff69b4;
+            color: white;
+        }
+        .btn-salvar {
+            background-color: #4a148c;
+            color: white;
+            border: none;
+        }
+        .btn-salvar:hover {
+            background-color: #7b1fa2;
+            color: white;
+        }
+        .table-custom th, .table-custom td {
+            border: 1px solid #d81b60;
+            vertical-align: middle;
+        }
+        .table-custom th {
+            background-color: #d81b60;
+            color: white;
+        }
+        .table-custom tr:nth-child(even) {
+            background-color: #fce4ec;
+        }
+        .table-custom tr:nth-child(odd) {
+            background-color: #fff0f5;
+        }
+        .form-control[readonly] {
+            background-color: #e9ecef;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home.home')}}">Secretaria da Mulher</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Contratos
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Notas Fiscais
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Cadastrar nota fiscal</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Visualizar notas fiscais</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Controle
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>                        
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-icons">
+                            account_circle
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">Trocar de conta</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header bg-white">
+            <h5 class="card-title" style="color: #d81b60;">Cadastro de Nota Fiscal</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label for="nomeNf" class="form-label">Nome da Nota Fiscal</label>
+                    <input type="text" class="form-control" id="nomeNf" placeholder="Ex: NF-00123456">
+                </div>
+                <div class="col-md-4">
+                    <label for="dataEmissao" class="form-label">Data de Emissão</label>
+                    <input type="date" class="form-control" id="dataEmissao">
+                </div>
+                <div class="col-md-4">
+                    <label for="selectContrato" class="form-label">Contrato</label>
+                    <div class="input-group">
+                        <select class="form-select" id="selectContrato">
+                            <option selected disabled value="">Selecione um contrato...</option>
+                            {% for contrato in contratos %}
+                            <option value="{{ contrato.id }}" data-casa="{{ contrato.casa }}" data-tipo="{{ contrato.tipo }}">{{ contrato.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-custom" type="button" id="btnSelecionar" disabled>Selecionar Produtos</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="casaContrato" class="form-label">Casa</label>
+                    <input type="text" class="form-control" id="casaContrato" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="tipoContrato" class="form-label">Tipo</label>
+                    <input type="text" class="form-control" id="tipoContrato" readonly>
+                </div>
+            </div>
+            <hr>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="selectProduto" class="form-label">Código do Produto</label>
+                    <select class="form-select" id="selectProduto" disabled>
+                        <option selected disabled value="">Selecione um produto...</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="descricaoProduto" class="form-label">Descrição</label>
+                    <input type="text" class="form-control" id="descricaoProduto" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="quantidade" class="form-label">Quantidade</label>
+                    <input type="number" class="form-control" id="quantidade" min="1" value="1">
+                </div>
+                <div class="col-md-3">
+                    <label for="valorUnitario" class="form-label">Valor Unitário</label>
+                    <input type="number" class="form-control" id="valorUnitario" min="0" step="0.01" value="0.00" readonly>
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
+                <button type="button" class="btn btn-custom" id="adicionarItem" disabled>Adicionar</button>
+                <button type="button" class="btn btn-salvar" id="salvarItens" disabled>Salvar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-5" style="color: #d81b60;">Produtos na Nota Fiscal</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-custom">
+            <thead>
+                <tr>
+                    <th scope="col">Código do Produto</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Valor Unitário</th>
+                    <th scope="col">Valor Total</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-produtos">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const produtos_para_salvar = [];
+
+    const btnSelecionar = document.getElementById('btnSelecionar');
+    const selectContrato = document.getElementById('selectContrato');
+    const selectProduto = document.getElementById('selectProduto');
+    const descricaoProduto = document.getElementById('descricaoProduto');
+    const valorUnitario = document.getElementById('valorUnitario');
+    const btnAdicionar = document.getElementById('adicionarItem');
+    const btnSalvar = document.getElementById('salvarItens');
+
+    selectContrato.addEventListener('change', function() {
+        btnSelecionar.disabled = false;
+        selectProduto.innerHTML = '<option selected disabled value="">Selecione um produto...</option>';
+        descricaoProduto.value = '';
+        valorUnitario.value = '0.00';
+        produtos_para_salvar.length = 0;
+        document.getElementById('tabela-produtos').innerHTML = '';
+        btnAdicionar.disabled = true;
+        btnSalvar.disabled = true;
+
+        const selectedOption = this.options[this.selectedIndex];
+        const casa = selectedOption.dataset.casa;
+        const tipo = selectedOption.dataset.tipo;
+        
+        document.getElementById('casaContrato').value = casa || '';
+        document.getElementById('tipoContrato').value = tipo || '';
+    });
+
+    btnSelecionar.addEventListener('click', async function() {
+        const contratoId = selectContrato.value;
+        if (!contratoId) {
+            alert('Por favor, selecione um contrato primeiro.');
+            return;
+        }
+
+        btnSelecionar.textContent = 'Carregando...';
+        btnSelecionar.disabled = true;
+        selectProduto.disabled = true;
+
+        try {
+            const response = await fetch(`/contrato/produtos_por_contrato/${contratoId}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert('Erro: ' + errorData.message);
+                return;
+            }
+            const produtos = await response.json();
+            
+            selectProduto.innerHTML = '<option selected disabled value="">Selecione um produto...</option>';
+            produtos.forEach(produto => {
+                const option = document.createElement('option');
+                option.value = produto.id;
+                option.textContent = produto.nome;
+                option.setAttribute('data-descricao', produto.descricao);
+                option.setAttribute('data-preco', produto.preco_unitario);
+                selectProduto.appendChild(option);
+            });
+            
+            selectProduto.disabled = false;
+            btnAdicionar.disabled = false;
+            
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            alert('Erro ao carregar produtos. Tente novamente.');
+        } finally {
+            btnSelecionar.textContent = 'Selecionar Produtos';
+            btnSelecionar.disabled = false;
+        }
+    });
+
+    selectProduto.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            descricaoProduto.value = selectedOption.dataset.descricao;
+            valorUnitario.value = parseFloat(selectedOption.dataset.preco).toFixed(2);
+        } else {
+            descricaoProduto.value = "";
+            valorUnitario.value = "0.00";
+        }
+    });
+
+    document.getElementById('adicionarItem').addEventListener('click', function() {
+        const produtoId = selectProduto.value;
+        const codigoProduto = selectProduto.options[selectProduto.selectedIndex].textContent;
+        const descricao = descricaoProduto.value;
+        const quantidade = parseFloat(document.getElementById('quantidade').value);
+        const valorUnitario = parseFloat(document.getElementById('valorUnitario').value);
+
+        if (!produtoId || isNaN(quantidade) || isNaN(valorUnitario) || quantidade <= 0) {
+            alert('Por favor, preencha todos os campos do produto corretamente.');
+            return;
+        }
+
+        const valorTotal = (quantidade * valorUnitario).toFixed(2);
+
+        const tabelaCorpo = document.getElementById('tabela-produtos');
+        const novaLinha = document.createElement('tr');
+        
+        novaLinha.innerHTML = `
+            <td>${codigoProduto}</td>
+            <td>${descricao}</td>
+            <td>${quantidade}</td>
+            <td>R$ ${valorUnitario.toFixed(2)}</td>
+            <td>R$ ${valorTotal}</td>
+        `;
+
+        tabelaCorpo.appendChild(novaLinha);
+
+        produtos_para_salvar.push({
+            produto_id: parseInt(produtoId),
+            quantidade_recebida: quantidade,
+            preco_unitario_nf: valorUnitario
+        });
+
+        selectProduto.value = "";
+        descricaoProduto.value = "";
+        document.getElementById('quantidade').value = '1';
+        valorUnitario.value = "0.00";
+        btnSalvar.disabled = false;
+    });
+
+    document.getElementById('salvarItens').addEventListener('click', async function() {
+        // CORRIGIDO: Agora pegamos o valor do campo com id 'nomeNf'
+        const nomeNf = document.getElementById('nomeNf').value;
+        const dataEmissao = document.getElementById('dataEmissao').value;
+        const contratoId = document.getElementById('selectContrato').value;
+
+        if (!nomeNf || !dataEmissao || !contratoId) {
+            alert('Por favor, preencha o nome da NF, a data e selecione um contrato.');
+            return;
+        }
+
+        if (produtos_para_salvar.length === 0) {
+            alert('Não há produtos para salvar na nota fiscal.');
+            return;
+        }
+
+        btnSalvar.disabled = true;
+        btnSalvar.textContent = 'Salvando...';
+
+        const dataToSend = {
+            // CORRIGIDO: O nome do campo agora é 'nome_nf' para corresponder ao Python
+            nome_nf: nomeNf,
+            data_emissao: dataEmissao,
+            contrato_id: parseInt(contratoId),
+            produtos: produtos_para_salvar
+        };
+        
+        try {
+            const response = await fetch('/notafiscal/cadastro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Nota Fiscal e produtos salvos com sucesso!');
+                produtos_para_salvar.length = 0;
+                document.getElementById('tabela-produtos').innerHTML = '';
+            } else {
+                console.error('Erro ao salvar a nota fiscal:', result.message);
+                alert(`Erro ao salvar a nota fiscal: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            alert('Erro de conexão com o servidor.');
+        } finally {
+            btnSalvar.disabled = false;
+            btnSalvar.textContent = 'Salvar Nota';
+        }
+    });
+</script>
+</body>
+</html>

@@ -68,8 +68,9 @@
                         Contratos
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Opção 1</a></li>
-                        <li><a class="dropdown-item" href="#">Opção 2</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -77,8 +78,8 @@
                         Notas Fiscais
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Opção 1</a></li>
-                        <li><a class="dropdown-item" href="#">Opção 2</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Cadastrar nota fiscal</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Visualizar notas fiscais</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -86,8 +87,7 @@
                         Controle
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Opção 1</a></li>
-                        <li><a class="dropdown-item" href="#">Opção 2</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>
                     </ul>
                 </li>
             </ul>
