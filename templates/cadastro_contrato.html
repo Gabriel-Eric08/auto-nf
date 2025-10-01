@@ -6,8 +6,8 @@
     <title>Gestão de Contratos</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     
     <style>
         body {
@@ -95,8 +95,8 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro estoque contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar estoques de contratos</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -146,8 +146,13 @@
                     <input type="text" class="form-control" id="nomeContrato" placeholder="Ex: Contrato 001/2025">
                 </div>
                 <div class="col-md-4">
-                    <label for="casa" class="form-label">Casa</label>
-                    <input type="text" class="form-control" id="casa" placeholder="Ex: Casa da Mulher">
+                    <label for="lotes" class="form-label">Lotes</label>
+                    <select id="lotes" multiple>
+                        <option value="">Selecione os lotes</option>
+                        {% for lote in lotes %}
+                        <option value="{{ lote.id }}">{{ lote.nome_lote }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label for="tipo" class="form-label">Tipo</label>
@@ -167,7 +172,7 @@
             <thead>
                 <tr>
                     <th scope="col">Nome do Contrato</th>
-                    <th scope="col">Casa</th>
+                    <th scope="col">Lotes</th>
                     <th scope="col">Tipo</th>
                     <th scope="col">Visualizar</th>
                 </tr>
@@ -176,7 +181,13 @@
                 {% for contrato in contratos %}
                 <tr>
                     <td>{{ contrato.nome }}</td>
-                    <td>{{ contrato.casa }}</td>
+                    <td>
+                        {% for assoc in contrato.lotes_associados %}
+                            {% if assoc.lote %}
+                                {{ assoc.lote.nome_lote }} {% if not loop.last %}, {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
                     <td>{{ contrato.tipo }}</td>
                     <td><button type="button" class="btn btn-sm btn-outline-info">Visualizar</button></td>
                 </tr>
@@ -187,11 +198,21 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializa o Choices.js no seu select
+        const lotesSelectElement = document.getElementById('lotes');
+        const lotesChoices = new Choices(lotesSelectElement, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Selecione os lotes',
+            noChoicesText: 'Nenhum lote para selecionar.',
+            noResultsText: 'Nenhum resultado encontrado.',
+            itemSelectText: 'Pressione Enter para selecionar'
+        });
+
         const nomeContratoInput = document.getElementById('nomeContrato');
-        const casaInput = document.getElementById('casa');
         const tipoInput = document.getElementById('tipo');
         const adicionarBtn = document.getElementById('adicionar');
         const salvarBtn = document.getElementById('salvar');
@@ -200,21 +221,23 @@
         // Lógica do botão "Adicionar"
         adicionarBtn.addEventListener('click', function() {
             const nomeContrato = nomeContratoInput.value.trim();
-            const casa = casaInput.value.trim();
+            const lotesSelecionados = lotesChoices.getValue(true); // Obtém os IDs dos lotes
             const tipo = tipoInput.value.trim();
 
-            if (!nomeContrato || !casa || !tipo) {
+            if (!nomeContrato || lotesSelecionados.length === 0 || !tipo) {
                 alert('Por favor, preencha todos os campos!');
                 return;
             }
 
-            // Adiciona uma nova linha à tabela na página
+            // Obtém o texto (nome) dos lotes para exibir na tabela
+            const lotesTexto = lotesChoices.getValue().map(item => item.label).join(', ');
+
             const novaLinha = document.createElement('tr');
-            // Usamos um atributo 'data-new' para identificar as linhas novas
             novaLinha.setAttribute('data-new', 'true');
+            novaLinha.setAttribute('data-lotes-ids', JSON.stringify(lotesSelecionados));
             novaLinha.innerHTML = `
                 <td>${nomeContrato}</td>
-                <td>${casa}</td>
+                <td>${lotesTexto}</td>
                 <td>${tipo}</td>
                 <td><button type="button" class="btn btn-sm btn-outline-info" disabled>Visualizar</button></td>
             `;
@@ -222,7 +245,7 @@
 
             // Limpa os campos do formulário para o próximo item
             nomeContratoInput.value = '';
-            casaInput.value = '';
+            lotesChoices.clearStore();
             tipoInput.value = '';
             nomeContratoInput.focus();
         });
@@ -244,10 +267,10 @@
 
             for (const linha of linhasNovas) {
                 const nome = linha.children[0].textContent;
-                const casa = linha.children[1].textContent;
+                const lotes_ids = JSON.parse(linha.getAttribute('data-lotes-ids'));
                 const tipo = linha.children[2].textContent;
 
-                const contrato = { nome, casa, tipo };
+                const contrato = { nome, lotes_ids, tipo };
 
                 try {
                     const response = await fetch('/contratos/add_only', {
@@ -272,7 +295,6 @@
                         break; 
                     }
                     
-                    // Se o status for 200 (OK) ou 201 (Created)
                     linha.removeAttribute('data-new');
                     linha.style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
 
@@ -295,11 +317,10 @@
 
             alert(mensagemFinal);
             
-            // Reabilita o botão e recarrega a página se for o caso
             salvarBtn.disabled = false;
             salvarBtn.textContent = 'Salvar';
             if (sucessoTotal) {
-                 location.reload();
+                location.reload();
             }
         });
     });

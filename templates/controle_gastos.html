@@ -6,7 +6,6 @@
     <title>Controle de Gastos</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
@@ -54,15 +53,6 @@
             background-color: #ff69b4;
             color: white;
         }
-        .btn-salvar {
-            background-color: #4a148c;
-            color: white;
-            border: none;
-        }
-        .btn-salvar:hover {
-            background-color: #7b1fa2;
-            color: white;
-        }
         .table-custom th, .table-custom td {
             border: 1px solid #d81b60;
             vertical-align: middle;
@@ -95,8 +85,8 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro estoque de contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar estoques de contratos</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -141,26 +131,33 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="contratoSelect" class="form-label">Contrato</label>
                     <select class="form-select" id="contratoSelect">
                         <option selected disabled value="">Selecione o Contrato</option>
                         {% for contrato in contratos %}
-                        <option value="{{ contrato.id }}">{{ contrato.nome }}</option>
+                        <option value="{{ contrato.id }}" data-tipo="{{ contrato.tipo }}">{{ contrato.nome }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="loteSelect" class="form-label">Lote</label>
+                    <select class="form-select" id="loteSelect" disabled>
+                        <option selected disabled value="">Selecione o Lote</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
                     <label for="casaInput" class="form-label">Casa</label>
                     <input type="text" class="form-control" id="casaInput" readonly>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="tipoInput" class="form-label">Tipo</label>
                     <input type="text" class="form-control" id="tipoInput" readonly>
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
-                <button type="button" class="btn btn-custom" id="selecionarBtn">Selecionar</button>
+                <button type="button" class="btn btn-custom" id="selecionarBtn" disabled>Visualizar Gastos</button>
             </div>
         </div>
     </div>
@@ -185,53 +182,88 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // Variável global enviada pelo backend (Python/Jinja)
+    const lotesMap = {{ lotes_map | tojson }};
+
     document.addEventListener('DOMContentLoaded', function() {
         const contratoSelect = document.getElementById('contratoSelect');
+        const loteSelect = document.getElementById('loteSelect');
         const casaInput = document.getElementById('casaInput');
         const tipoInput = document.getElementById('tipoInput');
         const selecionarBtn = document.getElementById('selecionarBtn');
         const tabelaCorpo = document.getElementById('tabela-corpo');
 
-        // Lógica para preencher os inputs de casa e tipo
+        function resetCampos() {
+            casaInput.value = '';
+            tipoInput.value = '';
+            loteSelect.innerHTML = '<option selected disabled value="">Selecione o Lote</option>';
+            loteSelect.disabled = true;
+            selecionarBtn.disabled = true;
+            tabelaCorpo.innerHTML = '';
+        }
+
+        // 1. EVENTO DE MUDANÇA NO CONTRATO
         contratoSelect.addEventListener('change', async function() {
             const contratoId = this.value;
-            if (contratoId) {
-                try {
-                    const response = await fetch(`/get_contrato_details/${contratoId}`);
-                    const data = await response.json();
-                    if (response.ok) {
-                        casaInput.value = data.casa;
-                        tipoInput.value = data.tipo;
-                    } else {
-                        casaInput.value = '';
-                        tipoInput.value = '';
-                    }
-                } catch (error) {
-                    console.error('Erro ao buscar detalhes do contrato:', error);
-                }
+            const selectedOption = this.options[this.selectedIndex];
+            
+            // Resetar campos relacionados a Lote e Tabela
+            resetCampos();
+            
+            // Exibir Tipo do Contrato (passado pelo Jinja no data-tipo)
+            tipoInput.value = selectedOption.dataset.tipo || 'N/A';
+            
+            // Carregar e preencher Lotes
+            const lotes = lotesMap[contratoId] || [];
+            
+            if (lotes.length > 0) {
+                loteSelect.disabled = false;
+                lotes.forEach(lote => {
+                    const option = document.createElement('option');
+                    option.value = lote.id;
+                    option.textContent = `Lote ${lote.nome_lote} (${lote.ano})`;
+                    option.setAttribute('data-casa', lote.casa);
+                    loteSelect.appendChild(option);
+                });
             } else {
-                casaInput.value = '';
-                tipoInput.value = '';
+                loteSelect.innerHTML = '<option selected disabled value="">Nenhum lote associado.</option>';
             }
         });
 
-        // Lógica para carregar os dados de controle de gastos
+        // 2. EVENTO DE MUDANÇA NO LOTE (Ativar Botão e preencher Casa)
+        loteSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const casa = selectedOption.dataset.casa;
+
+            // Preenche a Casa do Lote
+            casaInput.value = casa || '';
+            
+            // Ativa o botão de busca
+            selecionarBtn.disabled = false;
+            tabelaCorpo.innerHTML = ''; // Limpa a tabela ao mudar o lote
+        });
+
+
+        // 3. Lógica para carregar os dados de controle de gastos (Requisição POST com Contrato e Lote)
         selecionarBtn.addEventListener('click', async function() {
             const contratoId = contratoSelect.value;
-            if (!contratoId) {
-                alert('Por favor, selecione um contrato primeiro.');
+            const loteId = loteSelect.value;
+            
+            if (!contratoId || !loteId) {
+                alert('Por favor, selecione um Contrato e um Lote primeiro.');
                 return;
             }
 
             selecionarBtn.disabled = true;
             selecionarBtn.textContent = 'Carregando...';
-            tabelaCorpo.innerHTML = ''; // Limpa a tabela
+            tabelaCorpo.innerHTML = ''; 
 
             try {
                 const response = await fetch('/controle_gasto', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contrato_id: contratoId })
+                    // Envia os dois IDs para o backend
+                    body: JSON.stringify({ contrato_id: contratoId, lote_id: loteId }) 
                 });
 
                 const data = await response.json();
@@ -249,7 +281,7 @@
                             tabelaCorpo.appendChild(novaLinha);
                         });
                     } else {
-                        tabelaCorpo.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum produto encontrado para este contrato.</td></tr>';
+                        tabelaCorpo.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum produto com nota de empenho neste lote/contrato.</td></tr>';
                     }
                 } else {
                     alert(`Erro: ${data.error}`);
@@ -260,7 +292,7 @@
                 alert('Erro de conexão com o servidor.');
             } finally {
                 selecionarBtn.disabled = false;
-                selecionarBtn.textContent = 'Selecionar';
+                selecionarBtn.textContent = 'Visualizar Gastos';
             }
         });
     });

@@ -98,8 +98,8 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro estoque contrato</a></li>  
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar estoques de contratos</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -149,19 +149,44 @@
                     <select class="form-select" id="selectContrato">
                         <option selected disabled value="">Selecione um contrato...</option>
                         {% for contrato in contratos %}
-                        <option value="{{ contrato.id }}" data-casa="{{ contrato.casa }}" data-tipo="{{ contrato.tipo }}">{{ contrato.nome }}</option>
+                        <option value="{{ contrato.id }}" data-casa="{% for assoc in contrato.lotes_associados %}{{ assoc.lote.nome_lote }}{% if not loop.last %}, {% endif %}{% endfor %}" data-tipo="{{ contrato.tipo }}">{{ contrato.nome }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="casaContrato" class="form-label">Casa</label>
-                    <input type="text" class="form-control" id="casaContrato" readonly>
+                    <label for="selectLote" class="form-label">Lote</label>
+                    <select class="form-select" id="selectLote">
+                        <option selected disabled value="">Selecione um lote...</option>
+                        {% for lote in lotes %}
+                        <option value="{{ lote.id }}">{{ lote.nome_lote }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label for="tipoContrato" class="form-label">Tipo</label>
                     <input type="text" class="form-control" id="tipoContrato" readonly>
                 </div>
             </div>
+            
+            <hr class="mt-4 mb-4" />
+
+            <h5 class="card-title" style="color: #d81b60;">Cadastro por Arquivo CSV/XLSX</h5>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <form id="uploadForm" method="post" enctype="multipart/form-data">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="fileUpload" name="file" accept=".csv, .xlsx, .xls">
+                            <button type="submit" class="btn btn-salvar" id="uploadBtn">
+                                <i class="material-icons">cloud_upload</i> Enviar Arquivo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <hr class="mt-4 mb-4" />
+
+            <h5 class="card-title" style="color: #d81b60;">Cadastro Manual</h5>
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="codigoProduto" class="form-label">Código do Produto</label>
@@ -202,7 +227,7 @@
                 </tr>
             </thead>
             <tbody id="tabela-produtos">
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
@@ -265,11 +290,14 @@
     });
 
     document.getElementById('salvarItens').addEventListener('click', async function() {
-        const selectElement = document.getElementById('selectContrato');
-        const contratoId = selectElement.value;
+        const selectContrato = document.getElementById('selectContrato');
+        const contratoId = selectContrato.value;
         
-        if (!contratoId) {
-            alert('Por favor, selecione um contrato antes de salvar os produtos.');
+        const selectLote = document.getElementById('selectLote');
+        const loteId = selectLote.value;
+
+        if (!contratoId || !loteId) {
+            alert('Por favor, selecione um contrato e um lote antes de salvar os produtos.');
             return;
         }
 
@@ -282,9 +310,9 @@
         btnSalvar.disabled = true;
         btnSalvar.textContent = 'Salvando...';
 
-        // Aqui está a correção: enviando o ID do contrato
         const dataToSend = {
             id: parseInt(contratoId),
+            lote_id: parseInt(loteId), // Inclui o lote_id na requisição
             produtos: produtos_para_salvar
         };
         
@@ -300,7 +328,7 @@
             const result = await response.json();
 
             if (response.ok) {
-                alert('Produtos salvos com sucesso!');
+                alert(result.message);
                 produtos_para_salvar.length = 0;
                 document.getElementById('tabela-produtos').innerHTML = '';
             } else {
@@ -313,6 +341,61 @@
         } finally {
             btnSalvar.disabled = false;
             btnSalvar.textContent = 'Salvar';
+        }
+    });
+
+    // Lógica para enviar o arquivo
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const selectContrato = document.getElementById('selectContrato');
+        const contratoId = selectContrato.value;
+
+        const selectLote = document.getElementById('selectLote');
+        const loteId = selectLote.value;
+
+        const fileInput = document.getElementById('fileUpload');
+        const file = fileInput.files[0];
+
+        if (!contratoId || !loteId) {
+            alert('Por favor, selecione um contrato e um lote antes de enviar o arquivo.');
+            return;
+        }
+
+        if (!file) {
+            alert('Por favor, selecione um arquivo para upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('contrato_id', contratoId);
+        formData.append('lote_id', loteId); // Adiciona o lote_id ao FormData
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+
+        try {
+            const response = await fetch('/upload-contratoproduto', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+                window.location.reload(); 
+            } else {
+                alert(`Erro: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            alert('Erro de conexão com o servidor.');
+        } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="material-icons">cloud_upload</i> Enviar Arquivo';
         }
     });
 </script>

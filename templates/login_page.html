@@ -1,160 +1,159 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Empresa</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fce4ec;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .main-title {
-            color: #d81b60;
-            font-size: 24px;
-            margin-bottom: 30px;
-            font-weight: bold;
-        }
-        .login-container h2 {
-            color: #d81b60;
-            margin-bottom: 25px;
-            font-weight: bold;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a4a4a;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #ff69b4;
-            box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
-        }
-        .login-button {
-            width: 100%;
-            padding: 15px;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .login-button:hover {
-            background-color: #e0529d;
-        }
-        .signup-text {
-            margin-top: 25px;
-            font-size: 14px;
-            color: #6a6a6a;
-        }
-        .signup-text a {
-            color: #ff69b4;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-        .signup-text a:hover {
-            color: #e0529d;
-        }
-        .support-info {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888;
-            line-height: 1.5;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Empresa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fce4ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .main-title {
+      color: #d81b60;
+      font-size: 24px;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+    .login-container h2 {
+      color: #d81b60;
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #4a4a4a;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff69b4;
+      box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+    }
+    .login-button {
+      width: 100%;
+      padding: 15px;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .login-button:hover {
+      background-color: #e0529d;
+    }
+    .signup-text {
+      margin-top: 25px;
+      font-size: 14px;
+      color: #6a6a6a;
+    }
+    .signup-text a {
+      color: #ff69b4;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .signup-text a:hover {
+      color: #e0529d;
+    }
+    .support-info {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
 
 <div class="login-container">
-    <h1 class="main-title">SECRETARIA DA MULHER</h1>
-    <h2>Controle de contratos</h2>
-    <form action="#" method="post">
-        <div class="form-group">
-            <input type="text" id="username" name="username" placeholder="Usuária ou E-mail" required>
-        </div>
-        <div class="form-group">
-            <input type="password" id="password" name="password" placeholder="Senha" required>
-        </div>
-        <button onclick="make_login(event)" type="submit" class="login-button">Entrar</button>
-    </form>
-    <p class="signup-text">Não possui uma conta?</p>
-    <p class="support-info">
-        Caso seja uma funcionária responsável pelo envio de notas fiscais,
-        contate o suporte para criação de sua conta.
-    </p>
+  <h1 class="main-title">SECRETARIA DA MULHER</h1>
+  <h2>Controle de contratos</h2>
+  <form action="#" method="post">
+    <div class="form-group">
+      <input type="text" id="username" name="username" placeholder="Usuária ou E-mail" required>
+    </div>
+    <div class="form-group">
+      <input type="password" id="password" name="password" placeholder="Senha" required>
+    </div>
+    <button onclick="make_login(event)" type="submit" class="login-button">Entrar</button>
+  </form>
+  <p class="signup-text">Não possui uma conta?</p>
+  <p class="support-info">
+    Caso seja uma funcionária responsável pelo envio de notas fiscais,
+    contate o suporte para criação de sua conta.
+  </p>
 </div>
 
 </body>
 <script>
-    function make_login() {
-    // Previne o comportamento padrão do botão de formulário, que é recarregar a página
+  function make_login(event) {
     event.preventDefault();
 
     fetch('/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            login: document.getElementById('username').value,
-            senha: document.getElementById('password').value
-        })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        login: document.getElementById('username').value,
+        senha: document.getElementById('password').value
+      })
     })
     .then(response => {
-        // Verifica se a resposta HTTP é bem-sucedida (status 200)
-        if (response.ok) {
-            return response.json(); // Se sim, converte a resposta para JSON
-        } else {
-            // Se o status for 401 ou outro erro, lança um erro para o bloco .catch
-            throw new Error('Usuário ou senha incorretos.');
-        }
+      if (response.ok) {
+        return response.json();
+      } else {
+        // Em vez de um alert, loga a mensagem de erro no console
+        console.error('Erro de autenticação: Usuário ou senha incorretos.');
+        // Lança um erro para que o bloco .catch seja executado
+        throw new Error('Usuário ou senha incorretos.');
+      }
     })
     .then(data => {
-        // Trata a resposta do servidor
-        if (data.status === 'success') {
-            alert('Login realizado com sucesso!');
-            // Redireciona o usuário para a próxima página
-            window.location.href = '/home';
-        } else {
-            alert('Falha no login. Verifique suas credenciais.');
-        }
+      if (data.status === 'success') {
+        // Loga a mensagem de sucesso no console
+        console.log('Login realizado com sucesso!');
+        window.location.href = '/home';
+      } else {
+        // Loga a falha de login no console
+        console.error('Falha no login. Verifique suas credenciais.');
+      }
     })
     .catch(error => {
-        // Captura e exibe erros da requisição ou do servidor
-        alert('Ocorreu um erro: ' + error.message);
-        console.error('Erro:', error);
+      // Loga erros de rede ou outros no console
+      console.error('Ocorreu um erro na requisição:', error);
     });
-}
+  }
 </script>
 </html>
