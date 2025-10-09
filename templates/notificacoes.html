@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações</title>
+    <style>
+        :root {
+            --color-primary: #FF4081; /* Rosa Vibrante */
+            --color-secondary: #C2185B; /* Bordô/Rosa Escuro */
+            --color-background: #f4f4f4; /* Fundo levemente cinza */
+            --color-white: #ffffff; /* Branco puro */
+            --color-text: #333333; /* Texto escuro */
+            --color-text-light: #666666; /* Texto cinza */
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-info: #2196F3;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--color-background);
+            margin: 0;
+            padding: 20px;
+            color: var(--color-text);
+            display: flex;
+            justify-content: center;
+        }
+
+        .notification-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--color-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* ---------------------------------- */
+        /* ESTILOS DAS ABAS */
+        /* ---------------------------------- */
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid #eeeeee;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background-color: var(--color-white);
+            color: var(--color-text-light);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tab-button:hover:not(.active) {
+            color: var(--color-primary);
+        }
+
+        .tab-button.active {
+            color: var(--color-secondary);
+            border-bottom: 4px solid var(--color-secondary);
+            background-color: #fcfcfc;
+        }
+
+        /* ---------------------------------- */
+        /* CONTEÚDO E ITENS DA NOTIFICAÇÃO */
+        /* ---------------------------------- */
+
+        .tab-content {
+            display: none; /* Esconde o conteúdo da aba por padrão */
+            padding-bottom: 10px;
+        }
+
+        .tab-content.active {
+            display: block; /* Mostra o conteúdo da aba ativa */
+        }
+
+        .notification-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 30px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background-color: rgba(255, 64, 129, 0.03); 
+        }
+        
+        /* Estilo para notificação não lida */
+        .notification-item.unread {
+            background-color: #ffe6f0; /* Fundo rosa bem claro */
+            font-weight: 500;
+            border-left: 5px solid var(--color-primary);
+        }
+
+        .notification-item.unread:hover {
+            background-color: #ffdce9;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-right: 15px;
+            line-height: 1;
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+
+        .content strong {
+            color: var(--color-secondary);
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Cores dos Ícones */
+        .icon.success { color: var(--color-success); }
+        .icon.warning { color: var(--color-warning); }
+        .icon.info { color: var(--color-info); }
+        .icon.alert { color: var(--color-primary); }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #aaa;
+            font-size: 1em;
+        }
+
+        .mark-read-container {
+            padding: 15px 30px;
+            background-color: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .mark-read-btn {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .mark-read-btn:hover {
+            background-color: var(--color-secondary);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<div class="notification-container">
+    <div class="tabs-header">
+        <button class="tab-button active" onclick="openTab(event, 'unread')">
+            Não Lidas (<span id="unread-count">2</span>)
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'read')">
+            Lidas (<span id="read-count">3</span>)
+        </button>
+    </div>
+
+    <div id="unread" class="tab-content active">
+        <div class="mark-read-container">
+            <button class="mark-read-btn" onclick="markAllAsRead()">Marcar todas como lidas</button>
+        </div>
+        <ul class="notification-list">
+            <li class="notification-item unread" data-id="1" data-status="unread">
+                <span class="icon alert"><i class="fas fa-file-invoice"></i></span>
+                <div class="content">
+                    <strong>Nova Nota Fiscal Cadastrada!</strong>
+                    <p>A NF **NF-001092** do Contrato 005/2024 foi registrada no Lote 03.</p>
+                    <span class="timestamp">Há 5 minutos</span>
+                </div>
+            </li>
+
+            <li class="notification-item unread" data-id="2" data-status="unread">
+                <span class="icon warning"><i class="fas fa-exclamation-triangle"></i></span>
+                <div class="content">
+                    <strong>Limite de Gasto Atingido!</strong>
+                    <p>O produto **Cimento CP V** do Contrato 002/2024 atingiu 95% do limite orçado.</p>
+                    <span class="timestamp">2 horas atrás</span>
+                </div>
+            </li>
+
+            <div class="empty-state" id="unread-empty" style="display: none;">
+                <p>🎉 Nenhuma notificação não lida. Parabéns!</p>
+            </div>
+        </ul>
+    </div>
+
+    <div id="read" class="tab-content">
+        <ul class="notification-list">
+            <li class="notification-item" data-id="3" data-status="read">
+                <span class="icon success"><i class="fas fa-check-circle"></i></span>
+                <div class="content">
+                    <strong>Acesso Liberado</strong>
+                    <p>Seu novo nível de acesso ao módulo de Custos foi ativado com sucesso.</p>
+                    <span class="timestamp">Ontem às 14:30</span>
+                </div>
+            </li>
+
+            <li class="notification-item" data-id="4" data-status="read">
+                <span class="icon info"><i class="fas fa-info-circle"></i></span>
+                <div class="content">
+                    <strong>Atualização do Sistema</strong>
+                    <p>Novo relatório de "Controle de Estoque por Lote" já está disponível.</p>
+                    <span class="timestamp">Há 3 dias</span>
+                </div>
+            </li>
+
+            <li class="notification-item" data-id="5" data-status="read">
+                <span class="icon info"><i class="fas fa-box"></i></span>
+                <div class="content">
+                    <strong>Novo Lote Criado</strong>
+                    <p>O Lote **Projeto Alfa - 2024** foi criado e está pronto para receber produtos.</p>
+                    <span class="timestamp">Há 1 semana</span>
+                </div>
+            </li>
+
+             <div class="empty-state" id="read-empty" style="display: none;">
+                <p>Sem histórico de notificações lidas.</p>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Função para alternar entre as abas
+    function openTab(evt, tabName) {
+        // 1. Esconde todo o conteúdo
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove('active');
+        }
+
+        // 2. Remove a classe 'active' de todos os botões
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // 3. Mostra o conteúdo da aba atual e adiciona 'active' ao botão
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.className += " active";
+    }
+
+    // Marca todas as notificações não lidas como lidas e move para a outra aba
+    function markAllAsRead() {
+        const unreadList = document.querySelector('#unread .notification-list');
+        const readList = document.querySelector('#read .notification-list');
+        const unreadItems = unreadList.querySelectorAll('.notification-item.unread');
+        
+        if (unreadItems.length === 0) {
+            alert('Não há notificações não lidas para marcar.');
+            return;
+        }
+
+        unreadItems.forEach(item => {
+            item.classList.remove('unread');
+            item.dataset.status = 'read';
+            
+            // Move o item para a lista de "Lidas" (DOM manipulation)
+            readList.prepend(item);
+            
+            // ATENÇÃO: Aqui você chamaria o seu backend para marcar a NF como lida
+            // Ex: fetch('/api/notifications/mark_read_all', { method: 'POST' });
+        });
+        
+        updateCounts();
+        
+        // Abre a aba de lidas (opcional, mas bom para feedback visual)
+        document.querySelector('.tab-button[onclick*="read"]').click();
+        alert('Todas as notificações foram marcadas como lidas.');
+    }
+    
+    // Atualiza a contagem de notificações nas abas
+    function updateCounts() {
+        const unreadCount = document.querySelectorAll('#unread .notification-item').length;
+        const readCount = document.querySelectorAll('#read .notification-item').length;
+        
+        document.getElementById('unread-count').textContent = unreadCount;
+        document.getElementById('read-count').textContent = readCount;
+        
+        // Lógica para mostrar/esconder o estado vazio
+        document.getElementById('unread-empty').style.display = unreadCount === 0 ? 'block' : 'none';
+        document.getElementById('read-empty').style.display = readCount === 0 ? 'block' : 'none';
+    }
+
+    // Inicializa a página abrindo a aba "Não Lidas" e atualizando contagens
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('.tab-button').click(); 
+        updateCounts();
+    });
+    function testandoScript(){
+        console.log("teste de conexão bem sucedido");
+    }
+</script>
+
+</body>
+</html>
