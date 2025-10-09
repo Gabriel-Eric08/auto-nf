@@ -116,14 +116,6 @@ class NotaFiscal(db.Model):
     lote = db.relationship('Lote') 
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    usuario = db.Column(db.String(50), nullable=False)
-    senha = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-
 class ControleGasto(db.Model):
     __tablename__ = 'controle_gastos'
     id = db.Column(db.Integer, primary_key=True)
@@ -168,3 +160,24 @@ class ContratoProdutoLote(db.Model):
 
     def __repr__(self):
         return f"<ContratoProdutoLote CP_ID:{self.contratoproduto_id} Lote_ID:{self.lote_id}>"
+
+class Registros(db.Model):
+    __tablename__ = 'registros'
+
+    id = db.Column(db.Integer, primary_key=True)
+    mensagem = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.now()) 
+    usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    tabela = db.Column(db.String(50), nullable=False)
+    id_linha = db.Column(db.Integer, nullable=False)
+    tipo_acao = db.Column(db.String(20), nullable=False) 
+    alerta = db.Column(db.Integer, nullable=False)
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    usuario = db.Column(db.String(50), nullable=False)
+    senha = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)

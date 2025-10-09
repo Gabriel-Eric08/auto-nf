@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, render_template
-from models.models import Contrato, Produto, ContratoProduto, ContratoLote, Lote
+from models.models import Contrato, Produto, ContratoProduto, ContratoLote, Lote, Registros, User
 from config_db import db
 from utils.validateLogin import validate_login_from_cookies
+from utils.get_user import get_user_id_from_cookie
 
 contrato_route = Blueprint('contrato', __name__)
 
@@ -36,28 +37,48 @@ def add_contrato_only():
         return jsonify({"message": "Dados JSON não fornecidos"}), 400
 
     nome = data.get('nome')
-    lotes_ids = data.get('lotes_ids')  # Recebe a lista de IDs de lotes
+    lotes_ids = data.get('lotes_ids')
     tipo = data.get('tipo')
 
-    # Validação dos campos obrigatórios
     if not nome or not lotes_ids or not tipo:
         return jsonify({"message": "Campos 'nome', 'lotes_ids' e 'tipo' são obrigatórios."}), 400
 
     try:
-        # Verifica se já existe um contrato com o mesmo nome
         existing_contrato = Contrato.query.filter_by(nome=nome).first()
         if existing_contrato:
             return jsonify({"message": f"Contrato com o nome '{nome}' já existe."}), 409
 
-        # Cria e adiciona o novo contrato à sessão
+        # 1. Cria e adiciona o novo contrato
         new_contrato = Contrato(nome=nome, tipo=tipo)
         db.session.add(new_contrato)
-        db.session.flush() # Importante para gerar o ID do novo contrato antes de associar
+        db.session.flush() # NECESSÁRIO: Gera o ID do novo contrato
 
-        # Cria as associações na tabela ContratoLote
+        # 2. Cria as associações na tabela ContratoLote
         for lote_id in lotes_ids:
             contrato_lote_assoc = ContratoLote(contrato_id=new_contrato.id, lote_id=lote_id)
             db.session.add(contrato_lote_assoc)
+
+        # --- Bloco de Log (Correções Aplicadas) ---
+        usuario_id_cookie = get_user_id_from_cookie()
+        user = User.query.filter_by(id=usuario_id_cookie).first()
+
+        # Verifica o usuário para evitar erro 'None'
+        nome_usuario = user.usuario if user else f"ID {usuario_id_cookie} (Não Encontrado)"
+        
+        mensagem_pre = f"Contrato de ID {new_contrato.id} salvo com sucesso pelo(a) usuário(a) {nome_usuario}."
+        
+        novo_registro = Registros(
+            mensagem=mensagem_pre,
+            # 'timestamp' é omitido para usar o default=db.func.now()
+            usuario_id=usuario_id_cookie,
+            tabela='contratos',
+            id_linha=new_contrato.id,
+            tipo_acao='CREATE',
+            alerta=0
+        )
+        db.session.add(novo_registro)
+        # O segundo db.session.flush() foi removido aqui.
+        # --- Fim Bloco de Log ---
 
         db.session.commit()
 
