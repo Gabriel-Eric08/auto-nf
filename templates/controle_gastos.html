@@ -12,6 +12,7 @@
         body {
             background-color: #f9f9f9;
         }
+        /* --- Estilos da Navbar (mantidos) --- */
         .navbar-custom {
             background-color: #ffffff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -40,6 +41,8 @@
         .nav-item.dropdown:hover .dropdown-menu {
             display: block;
         }
+        
+        /* --- Estilos do Card e Botões --- */
         .card-custom {
             border: 1px solid #d81b60;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -53,6 +56,21 @@
             background-color: #ff69b4;
             color: white;
         }
+        /* NOVO ESTILO: Botão de Ação (Imprimir) */
+        .btn-acao {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .btn-acao:hover {
+            background-color: #43A047;
+            color: white;
+        }
+
+        /* --- Estilos da Tabela (mantidos) --- */
         .table-custom th, .table-custom td {
             border: 1px solid #d81b60;
             vertical-align: middle;
@@ -67,11 +85,49 @@
         .table-custom tr:nth-child(odd) {
             background-color: #fff0f5;
         }
+
+        /* --- ESTILOS DE IMPRESSÃO --- */
+        @media print {
+            /* Oculta Navbar e o Card de Filtro */
+            .no-print, .navbar-custom {
+                display: none !important;
+            }
+            body {
+                background-color: white !important;
+            }
+            .container {
+                margin-top: 0 !important;
+                padding: 10px; /* Adiciona um pequeno padding para as margens do papel */
+            }
+            /* Garante que o texto de resultados seja impresso com cor */
+            .table-custom {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                width: 100% !important;
+                border-collapse: collapse; /* Garante que as bordas fiquem visíveis */
+            }
+            .table-custom th {
+                font-size: 10pt;
+            }
+            .table-custom td {
+                font-size: 9pt;
+            }
+            /* Adiciona um cabeçalho no PDF */
+            h3::before {
+                content: "Controle de Gastos";
+                display: block;
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+                border-bottom: 2px solid #333;
+            }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom">
+<nav class="navbar navbar-expand-lg navbar-custom no-print">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('home.home') }}">Secretaria da Mulher</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +181,7 @@
 </nav>
 
 <div class="container mt-5">
-    <div class="card card-custom">
+    <div class="card card-custom no-print">
         <div class="card-header bg-white">
             <h5 class="card-title" style="color: #d81b60;">Controle de Gastos</h5>
         </div>
@@ -158,6 +214,9 @@
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
                 <button type="button" class="btn btn-custom" id="selecionarBtn" disabled>Visualizar Gastos</button>
+                <button type="button" onclick="window.print()" class="btn-acao" id="imprimirBtn" disabled>
+                    <i class="material-icons me-1" style="vertical-align: middle;">print</i> Imprimir/Salvar PDF
+                </button>
             </div>
         </div>
     </div>
@@ -174,6 +233,7 @@
                 </tr>
             </thead>
             <tbody id="tabela-corpo">
+                <tr><td colspan="4" class="text-center">Selecione e visualize os dados para impressão.</td></tr>
             </tbody>
         </table>
     </div>
@@ -182,7 +242,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Variável global enviada pelo backend (Python/Jinja)
     const lotesMap = {{ lotes_map | tojson }};
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -191,6 +250,7 @@
         const casaInput = document.getElementById('casaInput');
         const tipoInput = document.getElementById('tipoInput');
         const selecionarBtn = document.getElementById('selecionarBtn');
+        const imprimirBtn = document.getElementById('imprimirBtn'); // Novo botão
         const tabelaCorpo = document.getElementById('tabela-corpo');
 
         function resetCampos() {
@@ -199,7 +259,8 @@
             loteSelect.innerHTML = '<option selected disabled value="">Selecione o Lote</option>';
             loteSelect.disabled = true;
             selecionarBtn.disabled = true;
-            tabelaCorpo.innerHTML = '';
+            imprimirBtn.disabled = true; // Desabilita o Imprimir no reset
+            tabelaCorpo.innerHTML = '<tr><td colspan="4" class="text-center">Selecione e visualize os dados para impressão.</td></tr>';
         }
 
         // 1. EVENTO DE MUDANÇA NO CONTRATO
@@ -207,13 +268,10 @@
             const contratoId = this.value;
             const selectedOption = this.options[this.selectedIndex];
             
-            // Resetar campos relacionados a Lote e Tabela
             resetCampos();
             
-            // Exibir Tipo do Contrato (passado pelo Jinja no data-tipo)
             tipoInput.value = selectedOption.dataset.tipo || 'N/A';
             
-            // Carregar e preencher Lotes
             const lotes = lotesMap[contratoId] || [];
             
             if (lotes.length > 0) {
@@ -235,16 +293,15 @@
             const selectedOption = this.options[this.selectedIndex];
             const casa = selectedOption.dataset.casa;
 
-            // Preenche a Casa do Lote
             casaInput.value = casa || '';
             
-            // Ativa o botão de busca
             selecionarBtn.disabled = false;
-            tabelaCorpo.innerHTML = ''; // Limpa a tabela ao mudar o lote
+            imprimirBtn.disabled = true; // Desabilita até que os dados sejam carregados
+            tabelaCorpo.innerHTML = '<tr><td colspan="4" class="text-center">Clique em "Visualizar Gastos" para carregar os dados.</td></tr>'; 
         });
 
 
-        // 3. Lógica para carregar os dados de controle de gastos (Requisição POST com Contrato e Lote)
+        // 3. Lógica para carregar os dados de controle de gastos
         selecionarBtn.addEventListener('click', async function() {
             const contratoId = contratoSelect.value;
             const loteId = loteSelect.value;
@@ -256,13 +313,13 @@
 
             selecionarBtn.disabled = true;
             selecionarBtn.textContent = 'Carregando...';
+            imprimirBtn.disabled = true;
             tabelaCorpo.innerHTML = ''; 
 
             try {
                 const response = await fetch('/controle_gasto', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // Envia os dois IDs para o backend
                     body: JSON.stringify({ contrato_id: contratoId, lote_id: loteId }) 
                 });
 
@@ -280,8 +337,10 @@
                             `;
                             tabelaCorpo.appendChild(novaLinha);
                         });
+                        imprimirBtn.disabled = false; // Habilita o imprimir se houver dados
                     } else {
                         tabelaCorpo.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum produto com nota de empenho neste lote/contrato.</td></tr>';
+                        imprimirBtn.disabled = true;
                     }
                 } else {
                     alert(`Erro: ${data.error}`);

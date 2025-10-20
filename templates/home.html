@@ -88,13 +88,14 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('Relatorio.visualizar_relatorio_page') }}">Relatório Geral Gasto</a></li>
                     </ul>
                 </li>
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ url_for('Notificacoes.notificaoes_page') }}">
                         <span class="material-icons">notifications</span>
                     </a>
                 </li>

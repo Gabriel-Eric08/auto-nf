@@ -23,8 +23,11 @@ class Contrato(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    # A coluna 'casa' foi removida
     tipo = db.Column(db.String(100), nullable=False)
+    
+    # NOVAS COLUNAS DE DATA
+    data_inicial = db.Column(db.Date, nullable=False)
+    data_final = db.Column(db.Date, nullable=False)
     
     # Adicionando a relação com a tabela de associação ContratoLote
     lotes_associados = db.relationship("ContratoLote", back_populates="contrato", lazy='subquery')

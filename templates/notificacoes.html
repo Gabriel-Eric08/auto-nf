@@ -4,41 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificações</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
+        /* CSS DO NAVBAR (COPIADO DO PRIMEIRO HTML) */
+        body {
+            background-color: #f4f4f4; /* Mantenho o fundo da página de notificação */
+        }
+        .navbar-custom {
+            background-color: #ffffff; /* Fundo do navbar branco */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-bottom: 3px solid #d81b60;
+            margin-bottom: 20px; /* Adicionado um espaço abaixo do navbar para separar do conteúdo */
+        }
+        .navbar-custom .nav-link,
+        .navbar-custom .navbar-brand {
+            color: #d81b60; /* Rosa escuro para o texto principal */
+            font-weight: bold;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #ff69b4; /* Rosa vibrante no hover */
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* Menu dropdown branco */
+        }
+        .dropdown-item {
+            color: #d81b60;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-item:hover {
+            background-color: #fff0f5; /* Um rosa bem sutil no hover */
+        }
+        /* CSS para o dropdown aparecer ao passar o mouse */
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        /* FIM DO CSS DO NAVBAR */
+
+        /* [SEUS ESTILOS CSS ORIGINAIS AQUI] */
         :root {
-            --color-primary: #FF4081; /* Rosa Vibrante */
-            --color-secondary: #C2185B; /* Bordô/Rosa Escuro */
-            --color-background: #f4f4f4; /* Fundo levemente cinza */
-            --color-white: #ffffff; /* Branco puro */
-            --color-text: #333333; /* Texto escuro */
-            --color-text-light: #666666; /* Texto cinza */
+            --color-primary: #FF4081; 
+            --color-secondary: #C2185B; 
+            --color-background: #f4f4f4; 
+            --color-white: #ffffff; 
+            --color-text: #333333; 
+            --color-text-light: #666666; 
             --color-success: #4CAF50;
             --color-warning: #FFC107;
             --color-info: #2196F3;
+            --color-filter-bg: #f5f5f5; 
+            --color-filter-border: #ddd; 
         }
 
         body {
             font-family: 'Arial', sans-serif;
             background-color: var(--color-background);
             margin: 0;
-            padding: 20px;
+            padding: 0; 
             color: var(--color-text);
-            display: flex;
-            justify-content: center;
+            display: block; 
         }
 
         .notification-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px; 
             background-color: var(--color-white);
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            margin: 20px auto; /* Centraliza a caixa de notificação */
         }
-
-        /* ---------------------------------- */
-        /* ESTILOS DAS ABAS */
-        /* ---------------------------------- */
+        
+        /* ... (O restante do seu CSS original) ... */
 
         .tabs-header {
             display: flex;
@@ -67,17 +109,58 @@
             background-color: #fcfcfc;
         }
 
-        /* ---------------------------------- */
-        /* CONTEÚDO E ITENS DA NOTIFICAÇÃO */
-        /* ---------------------------------- */
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            padding: 15px 30px;
+            background-color: var(--color-filter-bg);
+            border-bottom: 1px solid var(--color-filter-border);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-bottom: 5px;
+        }
+
+        .filter-group input[type="date"],
+        .filter-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            min-width: 120px;
+            box-sizing: border-box;
+        }
+        
+        .filter-btn {
+            align-self: flex-end; 
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--color-secondary);
+        }
 
         .tab-content {
-            display: none; /* Esconde o conteúdo da aba por padrão */
+            display: none; 
             padding-bottom: 10px;
         }
 
         .tab-content.active {
-            display: block; /* Mostra o conteúdo da aba ativa */
+            display: block; 
         }
 
         .notification-list {
@@ -98,9 +181,8 @@
             background-color: rgba(255, 64, 129, 0.03); 
         }
         
-        /* Estilo para notificação não lida */
         .notification-item.unread {
-            background-color: #ffe6f0; /* Fundo rosa bem claro */
+            background-color: #ffe6f0; 
             font-weight: 500;
             border-left: 5px solid var(--color-primary);
         }
@@ -132,7 +214,6 @@
             margin-top: 5px;
         }
 
-        /* Cores dos Ícones */
         .icon.success { color: var(--color-success); }
         .icon.warning { color: var(--color-warning); }
         .icon.info { color: var(--color-info); }
@@ -166,89 +247,205 @@
             background-color: var(--color-secondary);
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
-<div class="notification-container">
-    <div class="tabs-header">
-        <button class="tab-button active" onclick="openTab(event, 'unread')">
-            Não Lidas (<span id="unread-count">2</span>)
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">Secretaria da Mulher</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <button class="tab-button" onclick="openTab(event, 'read')">
-            Lidas (<span id="read-count">3</span>)
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Contratos
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro estoque contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar estoques de contratos</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Notas Fiscais
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Cadastrar nota fiscal</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Visualizar notas fiscais</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Controle
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('Notificacoes.notificaoes_page') }}">
+                        <span class="material-icons">notifications</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="material-icons">
+                            account_circle
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.login_page') }}">Trocar de conta</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="notification-container">
+    
+    <form id="filter-form" class="filter-form" onsubmit="applyFilters(event)">
+        <div class="filter-group">
+            <label for="data_inicial">Data Inicial</label>
+            <input type="date" id="data_inicial" name="data_inicial" value="{{ data_inicial or '' }}">
+        </div>
+        <div class="filter-group">
+            <label for="data_final">Data Final</label>
+            <input type="date" id="data_final" name="data_final" value="{{ data_final or '' }}">
+        </div>
+        <div class="filter-group">
+            <label for="alerta_filtro">Nível de Alerta</label>
+            <select id="alerta_filtro" name="alerta_filtro">
+                <option value="" {% if alerta_filtro == None or alerta_filtro == '' %}selected{% endif %}>Todos</option>
+                <option value="2" {% if alerta_filtro == '2' %}selected{% endif %}>Urgente (Alerta 2)</option>
+                <option value="1" {% if alerta_filtro == '1' %}selected{% endif %}>Aviso (Alerta 1)</option>
+                <option value="0" {% if alerta_filtro == '0' %}selected{% endif %}>Processado (Alerta 0)</option>
+            </select>
+        </div>
+        <button type="submit" class="filter-btn">Filtrar</button>
+    </form>
+    
+    <div class="tabs-header">
+        <button class="tab-button" id="tab-all" onclick="openTab(event, 'all')">
+            Todas (<span id="all-count">{{ todas|length }}</span>)
+        </button>
+        <button class="tab-button" id="tab-unread" onclick="openTab(event, 'unread')">
+            Não Lidas (<span id="unread-count">{{ nao_lidas|length }}</span>)
+        </button>
+        <button class="tab-button" id="tab-read" onclick="openTab(event, 'read')">
+            Lidas (<span id="read-count">{{ lidas|length }}</span>)
         </button>
     </div>
 
-    <div id="unread" class="tab-content active">
+    <div id="all" class="tab-content">
+        <ul class="notification-list" id="all-list">
+            {% for registro in todas %}
+            <li class="notification-item {% if registro.alerta > 0 %}unread{% endif %}" 
+                data-id="{{ registro.id }}" data-status="{% if registro.alerta > 0 %}unread{% else %}read{% endif %}">
+                
+                {% set icon_class = 'info' %}
+                {% set icon_fa = 'fa-info-circle' %}
+
+                {% if registro.alerta == 1 %}
+                    {% set icon_class = 'warning' %}
+                    {% set icon_fa = 'fa-exclamation-triangle' %}
+                {% elif registro.alerta == 2 %}
+                    {% set icon_class = 'alert' %}
+                    {% set icon_fa = 'fa-bell' %}
+                {% elif registro.alerta == 0 %}
+                    {% set icon_class = 'success' %}
+                    {% set icon_fa = 'fa-check-circle' %}
+                {% endif %}
+                
+                <span class="icon {{ icon_class }}"><i class="fas {{ icon_fa }}"></i></span>
+                <div class="content">
+                    <strong>[{{ registro.alerta }}] Ação em {{ registro.tabela | capitalize }}</strong> 
+                    <p>{{ registro.mensagem }}</p>
+                    <span class="timestamp">{{ registro.timestamp.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+            </li>
+            {% endfor %}
+            {% if todas|length == 0 %}
+            <div class="empty-state" id="all-empty">
+                <p>Nenhuma notificação encontrada com os filtros atuais.</p>
+            </div>
+            {% endif %}
+        </ul>
+    </div>
+
+
+    <div id="unread" class="tab-content">
         <div class="mark-read-container">
             <button class="mark-read-btn" onclick="markAllAsRead()">Marcar todas como lidas</button>
         </div>
-        <ul class="notification-list">
-            <li class="notification-item unread" data-id="1" data-status="unread">
-                <span class="icon alert"><i class="fas fa-file-invoice"></i></span>
+        <ul class="notification-list" id="unread-list">
+            
+            {% for registro in nao_lidas %}
+            <li class="notification-item unread" data-id="{{ registro.id }}" data-status="unread">
+                
+                {% set icon_class = 'info' %}
+                {% set icon_fa = 'fa-info-circle' %}
+
+                {% if registro.alerta == 1 %}
+                    {% set icon_class = 'warning' %}
+                    {% set icon_fa = 'fa-exclamation-triangle' %}
+                {% elif registro.alerta == 2 %}
+                    {% set icon_class = 'alert' %}
+                    {% set icon_fa = 'fa-bell' %}
+                {% endif %}
+                
+                <span class="icon {{ icon_class }}"><i class="fas {{ icon_fa }}"></i></span>
                 <div class="content">
-                    <strong>Nova Nota Fiscal Cadastrada!</strong>
-                    <p>A NF **NF-001092** do Contrato 005/2024 foi registrada no Lote 03.</p>
-                    <span class="timestamp">Há 5 minutos</span>
+                    <strong>[{{ registro.alerta }}] Ação em {{ registro.tabela | capitalize }}</strong> 
+                    <p>{{ registro.mensagem }}</p>
+                    <span class="timestamp">{{ registro.timestamp.strftime('%d/%m/%Y %H:%M') }}</span>
                 </div>
             </li>
-
-            <li class="notification-item unread" data-id="2" data-status="unread">
-                <span class="icon warning"><i class="fas fa-exclamation-triangle"></i></span>
-                <div class="content">
-                    <strong>Limite de Gasto Atingido!</strong>
-                    <p>O produto **Cimento CP V** do Contrato 002/2024 atingiu 95% do limite orçado.</p>
-                    <span class="timestamp">2 horas atrás</span>
-                </div>
-            </li>
-
-            <div class="empty-state" id="unread-empty" style="display: none;">
+            {% endfor %}
+            {% if nao_lidas|length == 0 %}
+            <div class="empty-state" id="unread-empty">
                 <p>🎉 Nenhuma notificação não lida. Parabéns!</p>
             </div>
+            {% endif %}
+            
         </ul>
     </div>
 
     <div id="read" class="tab-content">
-        <ul class="notification-list">
-            <li class="notification-item" data-id="3" data-status="read">
-                <span class="icon success"><i class="fas fa-check-circle"></i></span>
+        <ul class="notification-list" id="read-list">
+            
+            {% for registro in lidas %}
+            <li class="notification-item" data-id="{{ registro.id }}" data-status="read">
+                
+                {% set icon_class = 'success' %}
+                {% set icon_fa = 'fa-check-circle' %}
+                
+                <span class="icon {{ icon_class }}"><i class="fas {{ icon_fa }}"></i></span>
                 <div class="content">
-                    <strong>Acesso Liberado</strong>
-                    <p>Seu novo nível de acesso ao módulo de Custos foi ativado com sucesso.</p>
-                    <span class="timestamp">Ontem às 14:30</span>
+                    <strong>[{{ registro.alerta }}] Ação em {{ registro.tabela | capitalize }}</strong>
+                    <p>{{ registro.mensagem }}</p>
+                    <span class="timestamp">{{ registro.timestamp.strftime('%d/%m/%Y %H:%M') }}</span>
                 </div>
             </li>
-
-            <li class="notification-item" data-id="4" data-status="read">
-                <span class="icon info"><i class="fas fa-info-circle"></i></span>
-                <div class="content">
-                    <strong>Atualização do Sistema</strong>
-                    <p>Novo relatório de "Controle de Estoque por Lote" já está disponível.</p>
-                    <span class="timestamp">Há 3 dias</span>
-                </div>
-            </li>
-
-            <li class="notification-item" data-id="5" data-status="read">
-                <span class="icon info"><i class="fas fa-box"></i></span>
-                <div class="content">
-                    <strong>Novo Lote Criado</strong>
-                    <p>O Lote **Projeto Alfa - 2024** foi criado e está pronto para receber produtos.</p>
-                    <span class="timestamp">Há 1 semana</span>
-                </div>
-            </li>
-
-             <div class="empty-state" id="read-empty" style="display: none;">
+            {% endfor %}
+            {% if lidas|length == 0 %}
+            <div class="empty-state" id="read-empty">
                 <p>Sem histórico de notificações lidas.</p>
             </div>
+            {% endif %}
+
         </ul>
     </div>
 </div>
 
-<script>
-    // Função para alternar entre as abas
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <script>
     function openTab(evt, tabName) {
-        // 1. Esconde todo o conteúdo
+        // [Lógica para alternar abas]
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-content");
         for (i = 0; i < tabcontent.length; i++) {
@@ -256,68 +453,76 @@
             tabcontent[i].classList.remove('active');
         }
 
-        // 2. Remove a classe 'active' de todos os botões
         tablinks = document.getElementsByClassName("tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
 
-        // 3. Mostra o conteúdo da aba atual e adiciona 'active' ao botão
         document.getElementById(tabName).style.display = "block";
         document.getElementById(tabName).classList.add('active');
         evt.currentTarget.className += " active";
     }
 
-    // Marca todas as notificações não lidas como lidas e move para a outra aba
+    // NOVA FUNÇÃO: Aplica os filtros recarregando a página com os parâmetros de URL
+    function applyFilters(event) {
+        event.preventDefault(); 
+
+        const dataInicial = document.getElementById('data_inicial').value;
+        const dataFinal = document.getElementById('data_final').value;
+        const alertaFiltro = document.getElementById('alerta_filtro').value;
+        
+        const params = new URLSearchParams();
+        
+        if (dataInicial) {
+            params.append('data_inicial', dataInicial);
+        }
+        if (dataFinal) {
+            params.append('data_final', dataFinal);
+        }
+        if (alertaFiltro !== '') { // Envia 0, 1, 2, mas não envia se for vazio (Todos)
+            params.append('alerta_filtro', alertaFiltro);
+        }
+        
+        // Recarrega a página com os novos filtros na URL
+        window.location.href = window.location.pathname + '?' + params.toString();
+    }
+    
+    // Função para Marcar Todas como Lidas (mantida)
     function markAllAsRead() {
-        const unreadList = document.querySelector('#unread .notification-list');
-        const readList = document.querySelector('#read .notification-list');
-        const unreadItems = unreadList.querySelectorAll('.notification-item.unread');
+        const unreadItems = document.querySelectorAll('#unread-list .notification-item.unread');
         
         if (unreadItems.length === 0) {
             alert('Não há notificações não lidas para marcar.');
             return;
         }
 
-        unreadItems.forEach(item => {
-            item.classList.remove('unread');
-            item.dataset.status = 'read';
-            
-            // Move o item para a lista de "Lidas" (DOM manipulation)
-            readList.prepend(item);
-            
-            // ATENÇÃO: Aqui você chamaria o seu backend para marcar a NF como lida
-            // Ex: fetch('/api/notifications/mark_read_all', { method: 'POST' });
+        fetch('/notificacoes/mark_read_all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Se for sucesso, recarrega a página para garantir que os dados filtrados estejam corretos
+                alert('Todas as notificações foram marcadas como lidas. Recarregando...');
+                window.location.reload(); 
+            } else {
+                alert('Erro ao marcar notificações como lidas: ' + (data.message || 'Erro desconhecido.'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+            alert('Falha na comunicação com o servidor.');
         });
-        
-        updateCounts();
-        
-        // Abre a aba de lidas (opcional, mas bom para feedback visual)
-        document.querySelector('.tab-button[onclick*="read"]').click();
-        alert('Todas as notificações foram marcadas como lidas.');
-    }
-    
-    // Atualiza a contagem de notificações nas abas
-    function updateCounts() {
-        const unreadCount = document.querySelectorAll('#unread .notification-item').length;
-        const readCount = document.querySelectorAll('#read .notification-item').length;
-        
-        document.getElementById('unread-count').textContent = unreadCount;
-        document.getElementById('read-count').textContent = readCount;
-        
-        // Lógica para mostrar/esconder o estado vazio
-        document.getElementById('unread-empty').style.display = unreadCount === 0 ? 'block' : 'none';
-        document.getElementById('read-empty').style.display = readCount === 0 ? 'block' : 'none';
     }
 
-    // Inicializa a página abrindo a aba "Não Lidas" e atualizando contagens
+    // Inicializa a página
     document.addEventListener('DOMContentLoaded', () => {
-        document.querySelector('.tab-button').click(); 
-        updateCounts();
+        // Abre a aba 'Todas' por padrão
+        document.getElementById('tab-all').click(); 
     });
-    function testandoScript(){
-        console.log("teste de conexão bem sucedido");
-    }
 </script>
 
 </body>

@@ -141,11 +141,26 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="nomeContrato" class="form-label">Nome do Contrato</label>
                     <input type="text" class="form-control" id="nomeContrato" placeholder="Ex: Contrato 001/2025">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="tipo" class="form-label">Tipo</label>
+                    <input type="text" class="form-control" id="tipo" placeholder="Ex: Temporário">
+                </div>
+                <div class="col-md-3">
+                    <label for="dataInicial" class="form-label">Data Inicial</label>
+                    <input type="date" class="form-control" id="dataInicial">
+                </div>
+                <div class="col-md-3">
+                    <label for="dataFinal" class="form-label">Data Final</label>
+                    <input type="date" class="form-control" id="dataFinal">
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
                     <label for="lotes" class="form-label">Lotes</label>
                     <select id="lotes" multiple>
                         <option value="">Selecione os lotes</option>
@@ -154,11 +169,8 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label for="tipo" class="form-label">Tipo</label>
-                    <input type="text" class="form-control" id="tipo" placeholder="Ex: Temporário">
-                </div>
             </div>
+            
             <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
                 <button type="button" class="btn btn-custom" id="adicionar">Adicionar</button>
                 <button type="button" class="btn btn-salvar" id="salvar">Salvar</button>
@@ -172,8 +184,10 @@
             <thead>
                 <tr>
                     <th scope="col">Nome do Contrato</th>
-                    <th scope="col">Lotes</th>
                     <th scope="col">Tipo</th>
+                    <th scope="col">Data Inicial</th>
+                    <th scope="col">Data Final</th>
+                    <th scope="col">Lotes</th>
                     <th scope="col">Visualizar</th>
                 </tr>
             </thead>
@@ -181,6 +195,9 @@
                 {% for contrato in contratos %}
                 <tr>
                     <td>{{ contrato.nome }}</td>
+                    <td>{{ contrato.tipo }}</td>
+                    <td>{{ contrato.data_inicial.strftime('%d/%m/%Y') if contrato.data_inicial else '' }}</td>
+                    <td>{{ contrato.data_final.strftime('%d/%m/%Y') if contrato.data_final else '' }}</td>
                     <td>
                         {% for assoc in contrato.lotes_associados %}
                             {% if assoc.lote %}
@@ -188,7 +205,6 @@
                             {% endif %}
                         {% endfor %}
                     </td>
-                    <td>{{ contrato.tipo }}</td>
                     <td><button type="button" class="btn btn-sm btn-outline-info">Visualizar</button></td>
                 </tr>
                 {% endfor %}
@@ -214,39 +230,68 @@
 
         const nomeContratoInput = document.getElementById('nomeContrato');
         const tipoInput = document.getElementById('tipo');
+        // NOVAS REFERÊNCIAS
+        const dataInicialInput = document.getElementById('dataInicial');
+        const dataFinalInput = document.getElementById('dataFinal');
+        
         const adicionarBtn = document.getElementById('adicionar');
         const salvarBtn = document.getElementById('salvar');
         const tabelaCorpo = document.getElementById('tabela-corpo');
 
+        // Função auxiliar para formatar a data de YYYY-MM-DD para DD/MM/YYYY
+        function formatarDataBrasileira(dataStr) {
+            if (!dataStr) return '';
+            const [ano, mes, dia] = dataStr.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
         // Lógica do botão "Adicionar"
         adicionarBtn.addEventListener('click', function() {
             const nomeContrato = nomeContratoInput.value.trim();
-            const lotesSelecionados = lotesChoices.getValue(true); // Obtém os IDs dos lotes
+            const lotesSelecionados = lotesChoices.getValue(true);
             const tipo = tipoInput.value.trim();
+            // NOVOS VALORES
+            const dataInicial = dataInicialInput.value;
+            const dataFinal = dataFinalInput.value;
 
-            if (!nomeContrato || lotesSelecionados.length === 0 || !tipo) {
-                alert('Por favor, preencha todos os campos!');
+
+            if (!nomeContrato || lotesSelecionados.length === 0 || !tipo || !dataInicial || !dataFinal) {
+                alert('Por favor, preencha todos os campos: Nome, Tipo, Data Inicial, Data Final e Lotes.');
+                return;
+            }
+            
+            // Validação de data: Data Inicial não pode ser maior que a Data Final
+            if (new Date(dataInicial) > new Date(dataFinal)) {
+                alert('A Data Inicial não pode ser maior que a Data Final.');
                 return;
             }
 
             // Obtém o texto (nome) dos lotes para exibir na tabela
             const lotesTexto = lotesChoices.getValue().map(item => item.label).join(', ');
-
+            
             const novaLinha = document.createElement('tr');
             novaLinha.setAttribute('data-new', 'true');
             novaLinha.setAttribute('data-lotes-ids', JSON.stringify(lotesSelecionados));
+            // ARMAZENA AS DATAS NO FORMATO ISO (YYYY-MM-DD) para envio ao backend
+            novaLinha.setAttribute('data-data-inicial', dataInicial); 
+            novaLinha.setAttribute('data-data-final', dataFinal);
+
             novaLinha.innerHTML = `
                 <td>${nomeContrato}</td>
-                <td>${lotesTexto}</td>
                 <td>${tipo}</td>
+                <td>${formatarDataBrasileira(dataInicial)}</td>
+                <td>${formatarDataBrasileira(dataFinal)}</td>
+                <td>${lotesTexto}</td>
                 <td><button type="button" class="btn btn-sm btn-outline-info" disabled>Visualizar</button></td>
             `;
             tabelaCorpo.appendChild(novaLinha);
 
             // Limpa os campos do formulário para o próximo item
             nomeContratoInput.value = '';
-            lotesChoices.clearStore();
             tipoInput.value = '';
+            dataInicialInput.value = '';
+            dataFinalInput.value = '';
+            lotesChoices.clearStore();
             nomeContratoInput.focus();
         });
 
@@ -268,11 +313,17 @@
             for (const linha of linhasNovas) {
                 const nome = linha.children[0].textContent;
                 const lotes_ids = JSON.parse(linha.getAttribute('data-lotes-ids'));
-                const tipo = linha.children[2].textContent;
+                // Tipo está no índice 1 e não mais no 2
+                const tipo = linha.children[1].textContent; 
+                
+                // RECUPERA AS DATAS NO FORMATO ISO para enviar ao backend
+                const data_inicial = linha.getAttribute('data-data-inicial'); 
+                const data_final = linha.getAttribute('data-data-final');
 
-                const contrato = { nome, lotes_ids, tipo };
+                const contrato = { nome, lotes_ids, tipo, data_inicial, data_final }; // Inclui as datas no payload
 
                 try {
+                    // Nota: '{{ url_for("contrato.add_contrato_only") }}' só funciona se o arquivo for renderizado pelo Flask.
                     const response = await fetch('/contratos/add_only', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

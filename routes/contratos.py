@@ -3,6 +3,7 @@ from models.models import Contrato, Produto, ContratoProduto, ContratoLote, Lote
 from config_db import db
 from utils.validateLogin import validate_login_from_cookies
 from utils.get_user import get_user_id_from_cookie
+from datetime import datetime
 
 contrato_route = Blueprint('contrato', __name__)
 
@@ -28,8 +29,8 @@ def contratos_page():
 @contrato_route.route('/contratos/add_only', methods=['POST'])
 def add_contrato_only():
     """
-    Salva um novo contrato no banco de dados com base nos dados JSON fornecidos.
-    Agora lida com a associação de múltiplos lotes a um único contrato.
+    Salva um novo contrato no banco de dados com base nos dados JSON fornecidos,
+    incluindo data inicial e final.
     """
     data = request.get_json()
 
@@ -39,17 +40,31 @@ def add_contrato_only():
     nome = data.get('nome')
     lotes_ids = data.get('lotes_ids')
     tipo = data.get('tipo')
+    # NOVAS VARIÁVEIS
+    data_inicial_str = data.get('data_inicial')
+    data_final_str = data.get('data_final')
 
-    if not nome or not lotes_ids or not tipo:
-        return jsonify({"message": "Campos 'nome', 'lotes_ids' e 'tipo' são obrigatórios."}), 400
+    # Validação de campos obrigatórios
+    if not nome or not lotes_ids or not tipo or not data_inicial_str or not data_final_str:
+        return jsonify({"message": "Campos 'nome', 'lotes_ids', 'tipo', 'data_inicial' e 'data_final' são obrigatórios."}), 400
 
     try:
+        # Conversão das strings de data para objetos date
+        # Assume-se o formato YYYY-MM-DD, que é o padrão de inputs HTML date.
+        data_inicial = datetime.strptime(data_inicial_str, '%Y-%m-%d').date()
+        data_final = datetime.strptime(data_final_str, '%Y-%m-%d').date()
+
         existing_contrato = Contrato.query.filter_by(nome=nome).first()
         if existing_contrato:
             return jsonify({"message": f"Contrato com o nome '{nome}' já existe."}), 409
 
-        # 1. Cria e adiciona o novo contrato
-        new_contrato = Contrato(nome=nome, tipo=tipo)
+        # 1. Cria e adiciona o novo contrato com as datas
+        new_contrato = Contrato(
+            nome=nome, 
+            tipo=tipo, 
+            data_inicial=data_inicial,  # ADICIONADO
+            data_final=data_final       # ADICIONADO
+        )
         db.session.add(new_contrato)
         db.session.flush() # NECESSÁRIO: Gera o ID do novo contrato
 
@@ -58,18 +73,16 @@ def add_contrato_only():
             contrato_lote_assoc = ContratoLote(contrato_id=new_contrato.id, lote_id=lote_id)
             db.session.add(contrato_lote_assoc)
 
-        # --- Bloco de Log (Correções Aplicadas) ---
+        # --- Bloco de Log (Mantido inalterado) ---
         usuario_id_cookie = get_user_id_from_cookie()
         user = User.query.filter_by(id=usuario_id_cookie).first()
 
-        # Verifica o usuário para evitar erro 'None'
         nome_usuario = user.usuario if user else f"ID {usuario_id_cookie} (Não Encontrado)"
         
-        mensagem_pre = f"Contrato de ID {new_contrato.id} salvo com sucesso pelo(a) usuário(a) {nome_usuario}."
+        mensagem_pre = f"Contrato de ID {new_contrato.id} salvo com sucesso pelo(a) usuário(a) {nome_usuario}. Vigência: {data_inicial_str} a {data_final_str}"
         
         novo_registro = Registros(
             mensagem=mensagem_pre,
-            # 'timestamp' é omitido para usar o default=db.func.now()
             usuario_id=usuario_id_cookie,
             tabela='contratos',
             id_linha=new_contrato.id,
@@ -77,7 +90,6 @@ def add_contrato_only():
             alerta=0
         )
         db.session.add(novo_registro)
-        # O segundo db.session.flush() foi removido aqui.
         # --- Fim Bloco de Log ---
 
         db.session.commit()
@@ -87,6 +99,9 @@ def add_contrato_only():
             "contrato_id": new_contrato.id
         }), 201
 
+    except ValueError:
+        db.session.rollback()
+        return jsonify({"message": "Formato de data inválido. Use o formato YYYY-MM-DD."}), 400
     except Exception as e:
         db.session.rollback()
         print(f"Erro ao criar contrato: {e}")

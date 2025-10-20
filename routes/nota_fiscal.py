@@ -40,6 +40,11 @@ def cadastro_nota_fiscal_page():
                 print(f"DEBUG: Dados faltantes: nome_nf={nome_nf}, data_emissao={data_emissao}, contrato_id={contrato_id}, lote_id={lote_id}, produtos_data={len(produtos_data)}")
                 return jsonify({"message": "Campos obrigatórios faltando (nome_nf, data_emissao, contrato_id, lote_id, produtos_data). Detalhes no console do servidor."}), 400
             
+            # Busca o objeto Contrato ANTES do loop, pois é o mesmo para todos os itens.
+            contrato_obj = Contrato.query.get(contrato_id)
+            if not contrato_obj:
+                return jsonify({"message": "Contrato não encontrado."}), 404
+                
             # Verifica se o Contrato e Lote existem e estão associados
             if not ContratoLote.query.filter_by(contrato_id=contrato_id, lote_id=lote_id).first():
                 return jsonify({"message": "O Lote selecionado não está associado ao Contrato fornecido."}), 400
@@ -57,6 +62,11 @@ def cadastro_nota_fiscal_page():
                 preco_unitario_nf = Decimal(str(prod_item.get('preco_unitario_nf', 0)))
                 
                 gasto_do_item = quantidade_recebida * preco_unitario_nf
+                
+                # BUSCA O OBJETO PRODUTO AQUI para usar a descrição na mensagem
+                produto_obj = Produto.query.get(produto_id)
+                produto_descricao = produto_obj.descricao if produto_obj else f"ID {produto_id}"
+
                 
                 # 1. Salva o item na NotaFiscal (NotaFiscal)
                 nova_nf_item = NotaFiscal(
@@ -109,9 +119,12 @@ def cadastro_nota_fiscal_page():
                 
                 if not limite_produto:
                     # Se não houver ContratoProduto, apenas registra o lançamento e segue
-                    continue 
-
-                quantidade_max = float(limite_produto.quantidade_max) 
+                    # O registro de log será feito abaixo, mas sem alerta.
+                    quantidade_max = 0
+                    percentual_restante = 1.0
+                else:
+                    quantidade_max = float(limite_produto.quantidade_max) 
+                
                 quantidade_consumida = float(controle_gasto_item.quantidade if controle_gasto_item else novo_controle.quantidade)
                 
                 if quantidade_max <= 0:
@@ -119,16 +132,29 @@ def cadastro_nota_fiscal_page():
                 else:
                     percentual_restante = (quantidade_max - quantidade_consumida) / quantidade_max
 
-                # B: Definir o valor de Alerta
+                # B: Definir o valor de Alerta e MENSAGEM AJUSTADA
+                
                 alerta = 0 # Padrão: 0 (Sem alerta)
-                mensagem_alerta = f"Nota Fiscal '{nome_nf}' lançada para o Produto ID {produto_id}."
+                
+                # MENSAGEM PADRÃO
+                mensagem_alerta = (
+                    f"Nota Fiscal '{nome_nf}' lançada para o Contrato '{contrato_obj.nome}' "
+                    f"do produto '{produto_descricao}'."
+                )
                 
                 if percentual_restante <= 0.25:
                     alerta = 2 # Crítico (25% ou menos)
-                    mensagem_alerta += f" ATENÇÃO CRÍTICA: Estoque em {percentual_restante * 100:.2f}% restante do limite!"
+                    mensagem_alerta += (
+                        f" ALERTA CRÍTICO: Restam somente {percentual_restante * 100:.2f}% "
+                        f"do estoque máximo contratado!"
+                    )
                 elif percentual_restante <= 0.50:
                     alerta = 1 # Médio (50% ou menos)
-                    mensagem_alerta += f" ATENÇÃO: Estoque em {percentual_restante * 100:.2f}% restante do limite."
+                    mensagem_alerta += (
+                        f" ALERTA: Restam {percentual_restante * 100:.2f}% "
+                        f"do estoque máximo contratado."
+                    )
+                # Se não houver limite de produto, apenas registra a mensagem padrão (alerta=0)
 
                 # C: Salvar o registro na tabela 'Registros'
                 novo_registro = Registros(
@@ -157,6 +183,7 @@ def cadastro_nota_fiscal_page():
             return jsonify({"message": f"Erro interno do servidor: {str(e)}"}), 500
 
     # Se a requisição for GET (visualizar página)
+    # ... (O código da requisição GET e as rotas auxiliares permanecem inalterados) ...
     elif request.method == 'GET':
         # ----------------------------------------------------
         # Lógica de Visualização (GET) - Envia Contratos e Lotes
@@ -168,9 +195,9 @@ def cadastro_nota_fiscal_page():
             lotes_por_contrato = {}
             
             contrato_lotes_db = db.session.query(ContratoLote, Lote)\
-                                         .join(Lote, ContratoLote.lote_id == Lote.id)\
-                                         .order_by(Lote.nome_lote)\
-                                         .all()
+                                        .join(Lote, ContratoLote.lote_id == Lote.id)\
+                                        .order_by(Lote.nome_lote)\
+                                        .all()
             
             for cl, lote in contrato_lotes_db:
                 if cl.contrato_id not in lotes_por_contrato:
@@ -194,9 +221,7 @@ def cadastro_nota_fiscal_page():
 
 @nota_fiscal_route.route('/notafiscal/visualizar', methods=['GET'])
 def visualizar_notas_fiscais_page():
-    """
-    Renderiza a página de visualização de notas fiscais, enviando Contratos e Lotes mapeados.
-    """
+# ... (manter o código inalterado) ...
     validate = validate_login_from_cookies()
     if validate:
         todos_contratos = Contrato.query.order_by(Contrato.nome).all()
@@ -204,9 +229,9 @@ def visualizar_notas_fiscais_page():
         lotes_por_contrato = {}
         
         contrato_lotes_db = db.session.query(ContratoLote, Lote)\
-                                    .join(Lote, ContratoLote.lote_id == Lote.id)\
-                                    .order_by(Lote.nome_lote)\
-                                    .all()
+                                     .join(Lote, ContratoLote.lote_id == Lote.id)\
+                                     .order_by(Lote.nome_lote)\
+                                     .all()
         
         for cl, lote in contrato_lotes_db:
             if cl.contrato_id not in lotes_por_contrato:
@@ -220,8 +245,8 @@ def visualizar_notas_fiscais_page():
             })
             
         return render_template('visualizar_nf.html', 
-                                contratos=todos_contratos,
-                                lotes_map=lotes_por_contrato) 
+                                 contratos=todos_contratos,
+                                 lotes_map=lotes_por_contrato) 
     else:
         return "Erro de autenticação. Por favor, faça login novamente."
 
@@ -229,18 +254,16 @@ def visualizar_notas_fiscais_page():
 # e a query para filtro DUPLO e distinct.
 @nota_fiscal_route.route('/notafiscal/por_contrato/<int:contrato_id>/<int:lote_id>', methods=['GET'])
 def get_notas_fiscais_por_contrato_lote(contrato_id, lote_id):
-    """
-    Retorna uma lista de notas fiscais únicas filtradas pela combinação Contrato E Lote.
-    """
+# ... (manter o código inalterado) ...
     try:
         # Busca DISTINCT pelo nome_nf para listar a NF apenas uma vez
         notas_fiscais = db.session.query(distinct(NotaFiscal.nome_nf), NotaFiscal.data_emissao)\
-                                .filter(
-                                    NotaFiscal.contrato_id == contrato_id,
-                                    NotaFiscal.lote_id == lote_id 
-                                )\
-                                .order_by(NotaFiscal.data_emissao.desc())\
-                                .all()
+                                 .filter(
+                                     NotaFiscal.contrato_id == contrato_id,
+                                     NotaFiscal.lote_id == lote_id 
+                                 )\
+                                 .order_by(NotaFiscal.data_emissao.desc())\
+                                 .all()
         
         if not notas_fiscais:
             return jsonify([]), 200
@@ -262,9 +285,7 @@ def get_notas_fiscais_por_contrato_lote(contrato_id, lote_id):
     
 @nota_fiscal_route.route('/notafiscal/detalhes', methods=['POST'])
 def visualizar_detalhes_nf():
-    """
-    Rota POST para visualizar os detalhes completos de uma nota fiscal.
-    """
+# ... (manter o código inalterado) ...
     validate = validate_login_from_cookies()
     if not validate:
         return "Erro de autenticação. Por favor, faça login novamente."
@@ -328,13 +349,13 @@ def visualizar_detalhes_nf():
 
 @nota_fiscal_route.route('/contrato/lotes_por_contrato/<int:contrato_id>', methods=['GET'])
 def get_lotes_por_contrato(contrato_id):
-    # Lógica de buscar lotes permanece inalterada
+# ... (manter o código inalterado) ...
     try:
         lotes_associados = db.session.query(Lote)\
-                                    .join(ContratoLote, ContratoLote.lote_id == Lote.id)\
-                                    .filter(ContratoLote.contrato_id == contrato_id)\
-                                    .order_by(Lote.nome_lote)\
-                                    .all()
+                                     .join(ContratoLote, ContratoLote.lote_id == Lote.id)\
+                                     .filter(ContratoLote.contrato_id == contrato_id)\
+                                     .order_by(Lote.nome_lote)\
+                                     .all()
         
         lotes_data = [{
             'id': int(lote.id), 
@@ -350,6 +371,7 @@ def get_lotes_por_contrato(contrato_id):
     
 @nota_fiscal_route.route('/contrato/produtos_por_contrato_lote/<int:contrato_id>/<int:lote_id>', methods=['GET'])
 def get_produtos_por_contrato_lote(contrato_id, lote_id):
+# ... (manter o código inalterado) ...
     try:
         # Filtra diretamente na tabela ContratoProduto, pois ela JÁ CONTÉM o lote_id
         query = db.session.query(Produto, ContratoProduto) \
