@@ -3,7 +3,7 @@ from models.models import Contrato, Produto, Registros, NotaFiscal, ContratoProd
 from config_db import db
 import traceback
 from decimal import Decimal
-from utils.get_user import get_user_id_from_cookie
+from utils.get_user import get_username_from_cookie
 from utils.validateLogin import validate_login_from_cookies
 from sqlalchemy import distinct
 
@@ -16,7 +16,7 @@ def cadastro_nota_fiscal_page():
     a página de seleção de contratos/lotes (GET).
     """
     # Obtenção do ID do usuário logado
-    usuario_id_logado = get_user_id_from_cookie()
+    usuario_id_logado = get_username_from_cookie()
 
     # Se a requisição for POST (salvar NF)
     if request.method == 'POST':
@@ -210,7 +210,7 @@ def cadastro_nota_fiscal_page():
                     'casa': lote.casa
                 })
 
-            return render_template('cadastro_nota_fiscal.html', 
+            return render_template('cadastro_nota_fiscal.html.j2', 
                                     contratos=todos_contratos,
                                     lotes_map=lotes_por_contrato) 
         else:
@@ -244,7 +244,7 @@ def visualizar_notas_fiscais_page():
                 'casa': lote.casa
             })
             
-        return render_template('visualizar_nf.html', 
+        return render_template('visualizar_nf.html.j2', 
                                  contratos=todos_contratos,
                                  lotes_map=lotes_por_contrato) 
     else:
@@ -341,7 +341,7 @@ def visualizar_detalhes_nf():
         'total_geral': total_geral
     }
 
-    return render_template('detalhes_nf.html', nf_data=nf_data)
+    return render_template('detalhes_nf.html.j2', nf_data=nf_data)
 
 # ----------------------------------------------------------------------------------
 # Rotas Auxiliares (Lógica de busca correta mantida)

@@ -45,7 +45,7 @@ def visualizar_relatorio_page():
 
     # Renderiza o template
     return render_template(
-        'relatorio_geral_gasto.html', 
+        'relatorio_geral_gasto.html.j2', 
         contratos=contratos, 
         lotes_map=lotes_map
     )

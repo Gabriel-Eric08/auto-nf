@@ -56,7 +56,7 @@ def notificaoes_page():
     lidas = [r for r in todas if r.alerta == 0]
 
     return render_template(
-        'notificacoes.html',
+        'notificacoes.html.j2',
         todas=todas,
         nao_lidas=nao_lidas,
         lidas=lidas,

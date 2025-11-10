@@ -34,7 +34,7 @@ def controle_gasto_page():
 
         contratos_data = [{'id': c.id, 'nome': c.nome, 'tipo': c.tipo} for c in contratos]
 
-        return render_template('controle_gastos.html', 
+        return render_template('controle_gastos.html.j2', 
                                controle_gastos=[], 
                                contratos=contratos_data, 
                                lotes_map=lotes_map)

@@ -21,5 +21,5 @@ app.register_blueprint(notficacoes_route)
 app.register_blueprint(relatorios_route)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, port=5000)
     print("Conectando com URI:", app.config["SQLALCHEMY_DATABASE_URI"])

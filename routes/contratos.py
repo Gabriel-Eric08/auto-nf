@@ -1,25 +1,38 @@
 from flask import Blueprint, request, jsonify, render_template
-from models.models import Contrato, Produto, ContratoProduto, ContratoLote, Lote, Registros, User
+from models.models import Produto, ContratoProduto, Registros
 from config_db import db
-from utils.validateLogin import validate_login_from_cookies
-from utils.get_user import get_user_id_from_cookie
-from datetime import datetime
+
+from services.contrato_service import ContratoService
+from services.contrato_lote_service import ContratoLoteService
+from services.user_service import UserService
+from services.registro_service import RegistroService
+from services.lote_service import LoteService
+
+contrato_service=ContratoService()
+contrato_lote_service=ContratoLoteService()
+user_service = UserService()
+registro_service = RegistroService()
+lote_service = LoteService()
 
 contrato_route = Blueprint('contrato', __name__)
 
 @contrato_route.route('/contratos', methods=['GET'])
 def contratos_page():
-    """
-    Renderiza a página de cadastro de contratos e exibe os contratos existentes.
-    Também busca os lotes para preencher o campo de seleção.
-    """
-    validate = validate_login_from_cookies()
-    if validate == True:
-        todos_contratos = Contrato.query.order_by(Contrato.nome).all()
-        # Busque todos os lotes para o multiselect
-        todos_lotes = Lote.query.order_by(Lote.nome_lote).all()
+
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+
+    if not username or not password:
+        return jsonify({
+            "message": "Erro de autenticação"
+        }), 401
+    
+    validate = user_service.validate_login(username, password)
+    if validate:
+        todos_contratos = contrato_service.get_all()
+        todos_lotes = lote_service.get_all()
         
-        return render_template('cadastro_contrato.html', 
+        return render_template('cadastro_contrato.html.j2', 
                                contratos=todos_contratos, 
                                lotes=todos_lotes)
     else:
@@ -28,10 +41,7 @@ def contratos_page():
 
 @contrato_route.route('/contratos/add_only', methods=['POST'])
 def add_contrato_only():
-    """
-    Salva um novo contrato no banco de dados com base nos dados JSON fornecidos,
-    incluindo data inicial e final.
-    """
+    
     data = request.get_json()
 
     if not data:
@@ -40,63 +50,43 @@ def add_contrato_only():
     nome = data.get('nome')
     lotes_ids = data.get('lotes_ids')
     tipo = data.get('tipo')
-    # NOVAS VARIÁVEIS
     data_inicial_str = data.get('data_inicial')
     data_final_str = data.get('data_final')
 
-    # Validação de campos obrigatórios
     if not nome or not lotes_ids or not tipo or not data_inicial_str or not data_final_str:
         return jsonify({"message": "Campos 'nome', 'lotes_ids', 'tipo', 'data_inicial' e 'data_final' são obrigatórios."}), 400
 
     try:
-        # Conversão das strings de data para objetos date
-        # Assume-se o formato YYYY-MM-DD, que é o padrão de inputs HTML date.
-        data_inicial = datetime.strptime(data_inicial_str, '%Y-%m-%d').date()
-        data_final = datetime.strptime(data_final_str, '%Y-%m-%d').date()
 
-        existing_contrato = Contrato.query.filter_by(nome=nome).first()
+        existing_contrato = contrato_service.existing_contrato(nome)
+
         if existing_contrato:
             return jsonify({"message": f"Contrato com o nome '{nome}' já existe."}), 409
 
         # 1. Cria e adiciona o novo contrato com as datas
-        new_contrato = Contrato(
-            nome=nome, 
-            tipo=tipo, 
-            data_inicial=data_inicial,  # ADICIONADO
-            data_final=data_final       # ADICIONADO
-        )
-        db.session.add(new_contrato)
-        db.session.flush() # NECESSÁRIO: Gera o ID do novo contrato
-
-        # 2. Cria as associações na tabela ContratoLote
-        for lote_id in lotes_ids:
-            contrato_lote_assoc = ContratoLote(contrato_id=new_contrato.id, lote_id=lote_id)
-            db.session.add(contrato_lote_assoc)
+        new_contrato_id = contrato_service.add_contrato(data)
+        contrato_lote_service.create_association(new_contrato_id, lotes_ids)
 
         # --- Bloco de Log (Mantido inalterado) ---
-        usuario_id_cookie = get_user_id_from_cookie()
-        user = User.query.filter_by(id=usuario_id_cookie).first()
+        username_cookie = request.cookies.get('username')
+        user = user_service.get_user_by_name(username_cookie)
 
-        nome_usuario = user.usuario if user else f"ID {usuario_id_cookie} (Não Encontrado)"
+        if not user:
+            return jsonify({
+                "message": "Usuário não encontrado!"
+            }), 401
         
-        mensagem_pre = f"Contrato de ID {new_contrato.id} salvo com sucesso pelo(a) usuário(a) {nome_usuario}. Vigência: {data_inicial_str} a {data_final_str}"
-        
-        novo_registro = Registros(
-            mensagem=mensagem_pre,
-            usuario_id=usuario_id_cookie,
-            tabela='contratos',
-            id_linha=new_contrato.id,
-            tipo_acao='CREATE',
-            alerta=0
-        )
-        db.session.add(novo_registro)
-        # --- Fim Bloco de Log ---
+        usuario_id = user.id
 
-        db.session.commit()
+        nome_usuario = user.usuario if user else f"ID {usuario_id} (Não Encontrado)"
+        
+        # Criação de log
+        mensagem_pre = f"Contrato de ID {new_contrato_id} salvo com sucesso pelo(a) usuário(a) {nome_usuario}. Vigência: {data_inicial_str} a {data_final_str}"
+        registro_service.create_registro(mensagem_pre, usuario_id, new_contrato_id)
 
         return jsonify({
             "message": "Contrato criado com sucesso!",
-            "contrato_id": new_contrato.id
+            "contrato_id": new_contrato_id
         }), 201
 
     except ValueError:
@@ -109,24 +99,10 @@ def add_contrato_only():
 
 @contrato_route.route('/contrato/produtos_por_contrato/<int:contrato_id>', methods=['GET'])
 def get_produtos_por_contrato(contrato_id):
-    """
-    Retorna os produtos associados a um contrato específico.
-    """
-    produtos_do_contrato = db.session.query(ContratoProduto, Produto)\
-                                 .join(Produto, ContratoProduto.produto_id == Produto.id)\
-                                 .filter(ContratoProduto.contrato_id == contrato_id)\
-                                 .all()
     
-    if not produtos_do_contrato:
+    lista_produtos = contrato_service.lista_produtos(contrato_id)
+
+    if not lista_produtos:
         return jsonify({"message": "Nenhum produto encontrado para este contrato."}), 404
 
-    lista_produtos = []
-    for cp, produto in produtos_do_contrato:
-        lista_produtos.append({
-            'id': produto.id,
-            'nome': produto.nome,
-            'descricao': produto.descricao,
-            'preco_unitario': cp.preco_unitario
-        })
-    
     return jsonify(lista_produtos)

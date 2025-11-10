@@ -7,6 +7,6 @@ home_route = Blueprint('home', __name__)
 def home():
     validate = validate_login_from_cookies()
     if validate == True:
-        return render_template('home.html')
+        return render_template('home.html.j2')
     else:
         return "Erro de autenticação. Por favor, faça login novamente."

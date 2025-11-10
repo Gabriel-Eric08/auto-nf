@@ -1,22 +1,27 @@
 from flask import Blueprint, request, jsonify, render_template
 import pandas as pd
 from models.models import Contrato, Produto, ContratoProduto, Lote, ContratoProdutoLote, Registros, User
-from utils.validateLogin import validate_login_from_cookies
-from utils.get_user import get_user_id_from_cookie
+
+from utils.get_user import get_username_from_cookie
 from config_db import db
 import io
 import traceback
+
+from services.user_service import UserService
+
+user_service = UserService()
 
 contrato_produto_route = Blueprint('contrato_produto', __name__)
 
 @contrato_produto_route.route('/contratoproduto', methods=['GET'])
 def contrato_produto_page():
-    validate = validate_login_from_cookies()
-    if validate == True:
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+    validate = user_service.validate_login(username,password)
+    if validate:
         todos_contratos = Contrato.query.order_by(Contrato.nome).all()
-        # Busque a lista de lotes para o campo de seleção
         todos_lotes = Lote.query.order_by(Lote.nome_lote).all()
-        return render_template('cadastro_contratoproduto.html', 
+        return render_template('cadastro_contratoproduto.html.j2', 
                                contratos=todos_contratos, 
                                lotes=todos_lotes)
     else:
@@ -29,7 +34,7 @@ def save_produtos_to_db(contrato_id, produtos_data, lote_id):
     """
     
     # 1. OBTÉM O ID DO USUÁRIO LOGADO A PARTIR DO COOKIE
-    user_id = get_user_id_from_cookie()
+    user_id = get_username_from_cookie()
     if not user_id:
         # Nota: Retorna 401 aqui, mas idealmente, o tratamento de erro deveria 
         # garantir que 'user_id' seja int ou que a sessão seja fechada mais cedo.
@@ -195,8 +200,11 @@ def upload_contrato_produto():
 # ROTA CORRIGIDA PARA FILTRAR POR CONTRATO E LOTE
 @contrato_produto_route.route('/contratoproduto/visualizar', methods=['GET', 'POST'])
 def visualizar_contrato_produto_page():
-    validate = validate_login_from_cookies()
-    if validate == True:
+    username=request.cookies.get('username')
+    password=request.cookies.get('password')
+
+    validate = user_service.validate_login(username,password)
+    if validate:
         todos_contratos = Contrato.query.order_by(Contrato.nome).all()
         todos_lotes = Lote.query.order_by(Lote.nome_lote).all()
         
@@ -232,7 +240,7 @@ def visualizar_contrato_produto_page():
                 # Execute a query para obter os produtos. Note que a tabela ContratoProdutoLote foi removida do JOIN
                 produtos_do_contrato = query.all() 
 
-        return render_template('visualizar_contrato_produto.html', 
+        return render_template('visualizar_contrato_produto.html.j2', 
                                contratos=todos_contratos,
                                lotes=todos_lotes,
                                produtos_contrato=produtos_do_contrato,
