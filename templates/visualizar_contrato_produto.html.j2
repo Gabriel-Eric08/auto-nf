@@ -1,325 +1,296 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Itens do Contrato</title>
+    <title>Visualizar Itens do Contrato | Sec. Mulher PE</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body {
-            background-color: #f9f9f9;
+        :root {
+            --primary-color: #6f42c1;
+            --primary-hover: #59359a;
+            --accent-color: #a673e8;
+            --bg-body: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --border-color: rgba(111, 66, 193, 0.1);
+            --transition: all 0.3s ease;
         }
-        /* ... Estilos não relacionados à impressão (mantidos) ... */
+
+        /* Correção da Fonte e suavização */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            font-weight: 300; /* Deixa a letra mais fina/clean */
+            background-color: var(--bg-body); 
+            color: var(--text-color); 
+            padding-top: 95px; /* Evita que a navbar cubra o conteúdo */
+            -webkit-font-smoothing: antialiased;
+            transition: var(--transition);
+        }
+
+        /* Navbar Unificada */
         .navbar-custom {
-            background-color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            border-bottom: 3px solid #d81b60;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 2px solid var(--primary-color);
+            padding: 0.8rem 0;
+            z-index: 1030;
         }
-        .navbar-custom .nav-link,
-        .navbar-custom .navbar-brand {
-            color: #d81b60;
-            font-weight: bold;
-        }
-        .navbar-custom .nav-link:hover {
-            color: #ff69b4;
-        }
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-        }
-        .dropdown-item {
-            color: #d81b60;
-            transition: background-color 0.3s ease;
-        }
-        .dropdown-item:hover {
-            background-color: #fff0f5;
-        }
-        .nav-item.dropdown:hover .dropdown-menu {
-            display: block;
-        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; font-size: 1.4rem; }
+        .nav-link { color: var(--text-color) !important; font-weight: 500; margin: 0 5px; }
+        .dropdown-menu { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 10px; }
+        .dropdown-item { border-radius: 8px; padding: 10px 20px; }
+        .dropdown-item:hover { background-color: var(--primary-color); color: white !important; }
+
+        /* Cards e Filtros */
         .card-custom {
-            border: 1px solid #d81b60;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        .btn-custom {
-            background-color: #d81b60;
-            color: white;
+            background: var(--card-bg);
             border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
         }
-        .btn-custom:hover {
-            background-color: #ff69b4;
-            color: white;
+        .card-header-custom {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: transparent;
         }
-        .btn-acao {
-            background-color: #4a148c; /* Cor roxa */
-            color: white;
+        .section-title { font-weight: 700; color: var(--primary-color); margin: 0; }
+
+        /* Tabela Estilizada */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        .table-custom thead th {
+            background-color: var(--primary-color) !important;
+            color: white !important;
             border: none;
-            padding: 8px 16px;
+            padding: 12px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .table-custom tbody tr:hover { background-color: #f3effb !important; }
+        .table-custom td { padding: 12px; vertical-align: middle; border: none; font-size: 0.85rem; }
+
+        .badge-aditivo {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: 600;
+            padding: 4px 8px;
             border-radius: 5px;
-            display: inline-block;
+            font-size: 0.75rem;
         }
-        .btn-acao:hover {
-            background-color: #7b1fa2;
-            color: white;
-        }
-        .btn-salvar {
-            background-color: #4a148c;
+
+        .btn-primary-custom {
+            background: var(--primary-color);
             color: white;
             border: none;
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: 0.3s;
         }
-        .btn-salvar:hover {
-            background-color: #7b1fa2;
-            color: white;
-        }
-        .table-custom th, .table-custom td {
-            border: 1px solid #d81b60;
-            vertical-align: middle;
-            /* Diminui o padding horizontal para ganhar espaço */
-            padding-left: 0.3rem !important;
-            padding-right: 0.3rem !important;
-        }
-        .table-custom th {
-            background-color: #d81b60;
-            color: white;
-            font-size: 0.8rem; /* Diminui a fonte do cabeçalho */
-        }
-        .table-custom td {
-             font-size: 0.7rem; /* Diminui a fonte do corpo */
-        }
-        .table-custom tr:nth-child(even) {
-            background-color: #fce4ec;
-        }
-        .table-custom tr:nth-child(odd) {
-            background-color: #fff0f5;
-        }
-        .form-control[readonly] {
-            background-color: #e9ecef;
-            opacity: 1;
-        }
+        .btn-primary-custom:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        
+        .btn-print { background: #4b4b4b; color: white; border-radius: 8px; padding: 10px 25px; border: none; }
 
-        /* --- ESTILOS DE IMPRESSÃO (CORRIGIDOS) --- */
+        /* Estilo de Impressão */
         @media print {
-            .no-print, .navbar-custom {
-                display: none !important;
-            }
-            body {
-                background-color: white !important;
-                /* Reduz a margem do corpo da página para maximizar a área de impressão */
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .container {
-                /* Remove as margens laterais padrão do container do Bootstrap */
-                width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 10px 10px 0 10px !important; /* Adiciona um padding pequeno */
-            }
-            .card-custom {
-                border: none !important;
-                box-shadow: none !important;
-            }
-            
-            /* Ajustes cruciais para a tabela */
-            .table-responsive {
-                overflow: visible !important; /* Garante que não haja scroll */
-            }
-            .table-custom {
-                -webkit-print-color-adjust: exact;
-                color-adjust: exact;
-                width: 100% !important;
-                table-layout: fixed; /* Força a tabela a respeitar a largura definida */
-            }
-            .table-custom th, .table-custom td {
-                font-size: 8pt !important; /* Tamanho de fonte bem pequeno */
-                padding: 2px 3px !important; /* Reduz o padding interno */
-                white-space: normal; /* Permite que o texto quebre linha */
-            }
-            
-            /* Define larguras relativas para as colunas mais estreitas */
-            .table-custom th:nth-child(4), /* Quantidade */
-            .table-custom th:nth-child(5), /* Valor Unitário */
-            .table-custom th:nth-child(6), /* Valor Total */
-            .table-custom th:nth-child(7), /* Quantidade 25% */
-            .table-custom th:nth-child(8)  /* Valor Total 25% */
-            {
-                width: 10%; /* Dá 10% de largura para as colunas de valores/quantidade */
-            }
-
-            .table-custom th:nth-child(1), /* Código do Produto */
-            .table-custom th:nth-child(3) /* Lote */
-            {
-                 width: 15%; 
-            }
-             .table-custom th:nth-child(2) /* Descrição */
-            {
-                 width: 30%; 
-            }
-            
-            .print-header::before {
-                content: "Relatório de Itens do Contrato - {% if contrato_selecionado %}{{ contrato_selecionado.nome }}{% endif %}";
-                display: block;
-                font-size: 1.2rem;
-                font-weight: bold;
-                margin: 0 0 15px 0;
-                padding-bottom: 5px;
-                border-bottom: 2px solid #333;
-            }
+            .no-print { display: none !important; }
+            body { padding-top: 0; background-color: white; }
+            .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .table-custom thead th { background-color: #eee !important; color: black !important; border: 1px solid #ddd !important; }
+            .table-custom td { border: 1px solid #ddd !important; font-size: 8pt !important; }
+            .print-only-header { display: block !important; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
         }
+        .print-only-header { display: none; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom no-print">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('home.home') }}">Secretaria da Mulher</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg fixed-top navbar-custom no-print">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">
+            <i class="fa-solid fa-scale-balanced me-2"></i>Sec. Mulher PE
+        </a>
+        
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fa-solid fa-bars text-primary"></i>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav mx-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Contratos
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Contratos</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastrar Contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Estoque Contrato</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar Estoques</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Notas Fiscais
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Notas Fiscais</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Cadastrar nota fiscal</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Visualizar notas fiscais</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Lançar Nota</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Histórico</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Controle
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Gestão</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle de Gastos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('Relatorio.visualizar_relatorio_page') }}">Relatório Geral</a></li>
                     </ul>
                 </li>
             </ul>
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="material-icons">
-                            account_circle
-                        </span>
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('Notificacoes.notificaoes_page') }}" class="nav-link px-3"><i class="fa-solid fa-bell"></i></a>
+                <div class="dropdown ms-3">
+                    <a class="nav-link p-0" href="#" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user fa-2xl" style="color: var(--primary-color)"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Trocar de conta</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth.login_page') }}">Sair</a></li>
                     </ul>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
 
-<div class="container mt-5">
-    
+<div class="container">
+    <div class="print-only-header text-center">
+        <h4>SECRETARIA DA MULHER DE PERNAMBUCO</h4>
+        <h5>Relatório de Itens do Contrato</h5>
+        <p>Contrato: {% if contrato_selecionado %}{{ contrato_selecionado.nome }}{% endif %}</p>
+    </div>
+
     <div class="card card-custom no-print">
-        <div class="card-header bg-white">
-            <h5 class="card-title" style="color: #d81b60;">Visualizar Itens do Contrato</h5>
+        <div class="card-header-custom d-flex align-items-center">
+            <i class="fa-solid fa-filter me-2 text-primary"></i>
+            <h5 class="section-title">Filtros de Consulta</h5>
         </div>
         <div class="card-body">
             <form action="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}" method="POST">
-                <div class="row g-3 mb-3">
+                <div class="row g-3">
                     <div class="col-md-4">
-                        <label for="selectContrato" class="form-label">Contrato</label>
-                        <select class="form-select" id="selectContrato" name="contrato_id" required>
-                            <option selected disabled value="">Selecione um contrato...</option>
+                        <label class="form-label fw-bold">Selecione o Contrato</label>
+                        <select class="form-select shadow-sm" id="selectContrato" name="contrato_id" required>
+                            <option selected disabled value="">Escolha...</option>
                             {% for contrato in contratos %}
-                            <option value="{{ contrato.id }}" data-casa="{{ contrato.casa }}" data-tipo="{{ contrato.tipo }}" {% if contrato_selecionado and contrato.id == contrato_selecionado.id %} selected {% endif %}>{{ contrato.nome }}</option>
+                            <option value="{{ contrato.id }}" 
+                                    data-casa="{{ contrato.casa }}" 
+                                    data-tipo="{{ contrato.tipo }}" 
+                                    {% if contrato_selecionado and contrato.id == contrato_selecionado.id %} selected {% endif %}>
+                                {{ contrato.nome }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
                     
                     <div class="col-md-4">
-                        <label for="selectLote" class="form-label">Lote</label>
-                        <select class="form-select" id="selectLote" name="lote_id">
+                        <label class="form-label fw-bold">Filtrar por Lote</label>
+                        <select class="form-select shadow-sm" id="selectLote" name="lote_id">
                             <option value="">Todos os Lotes</option>
                             {% for lote in lotes %}
-                            <option value="{{ lote.id }}" {% if lote_id_enviado and lote.id | string == lote_id_enviado | string %} selected {% endif %}>{{ lote.nome_lote }}</option>
+                            <option value="{{ lote.id }}" {% if lote_id_enviado and lote.id | string == lote_id_enviado | string %} selected {% endif %}>
+                                {{ lote.nome_lote }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="col-md-4">
-                        <label for="casaContrato" class="form-label">Casa</label>
-                        <input type="text" class="form-control" id="casaContrato" readonly value="{% if contrato_selecionado %}{{ contrato_selecionado.casa }}{% endif %}">
+
+                    <div class="col-md-2">
+                        <label class="form-label">Casa</label>
+                        <input type="text" class="form-control bg-light" id="casaContrato" readonly value="{% if contrato_selecionado %}{{ contrato_selecionado.casa }}{% endif %}">
                     </div>
-                    <div class="col-md-4">
-                        <label for="tipoContrato" class="form-label">Tipo</label>
-                        <input type="text" class="form-control" id="tipoContrato" readonly value="{% if contrato_selecionado %}{{ contrato_selecionado.tipo }}{% endif %}">
+                    <div class="col-md-2">
+                        <label class="form-label">Tipo</label>
+                        <input type="text" class="form-control bg-light" id="tipoContrato" readonly value="{% if contrato_selecionado %}{{ contrato_selecionado.tipo }}{% endif %}">
                     </div>
-                </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
-                    <button type="submit" class="btn btn-custom" id="btnConsultar">Consultar</button>
-                    <button type="button" onclick="window.print()" class="btn-acao">
-                        <i class="material-icons me-1" style="vertical-align: middle;">print</i> Imprimir/Salvar PDF
-                    </button>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i>Consultar Itens
+                        </button>
+                        <button type="button" onclick="window.print()" class="btn btn-print">
+                            <i class="fa-solid fa-print me-2"></i>Imprimir Relatório
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <h3 class="mt-5 print-header" style="color: #d81b60;">Produtos do Contrato</h3>
-    
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-custom">
-            <thead>
-                <tr>
-                    <th scope="col">Cód. Prod.</th> <th scope="col">Descrição</th> <th scope="col">Lote</th> <th scope="col">Quant.</th> <th scope="col">Vlr Unit.</th> <th scope="col">Vlr Total</th> <th scope="col">Quant. 25%</th> <th scope="col">Vlr Total 25%</th> </tr>
-            </thead>
-            <tbody id="tabela-produtos">
-                {% if produtos_contrato %}
-                {% for cp, produto, lote in produtos_contrato %} 
+    <div class="d-flex align-items-center mb-3">
+        <div class="bg-primary rounded-circle p-2 me-3 no-print">
+            <i class="fa-solid fa-boxes-stacked text-white"></i>
+        </div>
+        <h4 class="fw-bold mb-0" style="color: var(--primary-color)">Itens Vinculados</h4>
+    </div>
+
+    <div class="table-container shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom">
+                <thead>
                     <tr>
-                        <td>{{ produto.nome }}</td>
-                        <td>{{ produto.descricao }}</td>
-                        <td>{{ lote.nome_lote }}</td> 
-                        <td>{{ cp.quantidade_max }}</td>
-                        <td>R$ {{ "%.2f"|format(cp.preco_unitario) }}</td>
-                        <td>R$ {{ "%.2f"|format(cp.quantidade_max * cp.preco_unitario) }}</td>
-                        <td>{{ (cp.quantidade_max / 4) | int }}</td>
-                        <td>R$ {{ "%.2f"|format((cp.quantidade_max * cp.preco_unitario) / 4) }}</td>
+                        <th>Cód.</th>
+                        <th>Descrição</th>
+                        <th>Lote</th>
+                        <th class="text-center">Qtd. Original</th>
+                        <th class="text-end">Vlr. Unit.</th>
+                        <th class="text-end">Total Original</th>
+                        <th class="text-center bg-light text-dark">Qtd. +25%</th>
+                        <th class="text-end bg-light text-dark">Total +25%</th>
                     </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="8" class="text-center">Nenhum produto para exibir. Selecione e consulte um contrato e/ou lote.</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody id="tabela-produtos">
+                    {% if produtos_contrato %}
+                        {% for cp, produto, lote in produtos_contrato %} 
+                        <tr>
+                            <td class="fw-bold text-primary">{{ produto.nome }}</td>
+                            <td class="text-muted">{{ produto.descricao }}</td>
+                            <td><span class="badge bg-secondary opacity-75">{{ lote.nome_lote }}</span></td>
+                            <td class="text-center">{{ cp.quantidade_max }}</td>
+                            <td class="text-end">R$ {{ "%.2f"|format(cp.preco_unitario) }}</td>
+                            <td class="text-end fw-bold">R$ {{ "%.2f"|format(cp.quantidade_max * cp.preco_unitario) }}</td>
+                            <td class="text-center bg-light"><span class="badge-aditivo">{{ (cp.quantidade_max * 0.25) | int }}</span></td>
+                            <td class="text-end bg-light fw-bold text-success">R$ {{ "%.2f"|format((cp.quantidade_max * cp.preco_unitario) * 0.25) }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-inbox fa-3x mb-3 d-block"></i>
+                                Nenhum item encontrado.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     document.getElementById('selectContrato').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        
-        const casa = selectedOption.dataset.casa;
-        const tipo = selectedOption.dataset.tipo;
-
-        document.getElementById('casaContrato').value = casa || '';
-        document.getElementById('tipoContrato').value = tipo || '';
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('casaContrato').value = opt.dataset.casa || '';
+        document.getElementById('tipoContrato').value = opt.dataset.tipo || '';
     });
 </script>
-
 </body>
 </html>

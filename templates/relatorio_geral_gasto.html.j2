@@ -1,102 +1,243 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório Geral de Gastos</title>
+    <title>Relatório Geral - Sec. Mulher PE</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* Estilos CSS: Mantenha seus estilos aqui */
-        body { background-color: #f9f9f9; }
-        .navbar-custom { background-color: #ffffff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); border-bottom: 3px solid #d81b60; }
-        .btn-custom { background-color: #d81b60; color: white; border: none; }
-        .btn-custom:hover { background-color: #ff69b4; color: white; }
-        .btn-acao { background-color: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 5px; display: inline-block; }
-        .table-custom th, .table-custom td { border: 1px solid #d81b60; vertical-align: middle; }
-        .table-custom th { background-color: #d81b60; color: white; }
+        :root {
+            --primary-color: #6f42c1;
+            --primary-hover: #59359a;
+            --bg-body: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --border-color: #e0e0e0;
+            --transition: all 0.3s ease;
+        }
 
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --nav-bg: rgba(30, 30, 30, 0.9);
+            --border-color: #444444;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            padding-top: 100px;
+            transition: var(--transition);
+        }
+
+        /* Navbar Unificada */
+        .navbar-custom {
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--primary-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
+        .nav-link { color: var(--text-color) !important; font-weight: 500; margin: 0 5px; }
+        .dropdown-menu { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: var(--card-bg); }
+        .dropdown-item { color: var(--text-color); }
+        .dropdown-item:hover { background: var(--primary-color); color: white; }
+
+        .card-custom {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-label { font-weight: 600; color: var(--primary-color); font-size: 0.85rem; }
+        .form-select { border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); padding: 10px; }
+
+        /* Botões */
+        .btn-gen { background: var(--primary-color); color: white; border-radius: 12px; padding: 12px 25px; border: none; transition: var(--transition); font-weight: 500; }
+        .btn-gen:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(111,66,193,0.3); }
+        
+        .btn-print { background: #28a745; color: white; border-radius: 12px; padding: 12px 25px; border: none; transition: var(--transition); font-weight: 500; }
+        .btn-print:hover:not(:disabled) { background: #218838; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40,167,69,0.3); }
+
+        /* Tabela de Relatório */
+        .table-relatorio { font-size: 0.8rem; border-radius: 15px; overflow: hidden; }
+        .table-relatorio thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            padding: 15px 10px;
+            border: none;
+        }
+        .table-relatorio tbody td {
+            padding: 12px 10px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .highlight-saldo { font-weight: 700; color: var(--primary-color); }
+        .text-danger-custom { color: #dc3545; font-weight: 500; }
+
+        .theme-switch {
+            background: var(--primary-color);
+            color: white; border: none; width: 40px; height: 40px; border-radius: 10px;
+        }
+
+        /* Impressão Paisagem Otimizada */
         @media print {
-            .no-print, .navbar-custom { display: none !important; }
-            body { background-color: white !important; }
-            .container { margin-top: 0 !important; padding: 10px; }
-            .table-custom { -webkit-print-color-adjust: exact; color-adjust: exact; width: 100% !important; border-collapse: collapse; }
-            .table-custom th { font-size: 8pt; }
-            .table-custom td { font-size: 7pt; }
-            h3::before { content: "Relatório Geral de Gastos - Contrato: " attr(data-contrato) " | Lote: " attr(data-lote); display: block; font-size: 1rem; font-weight: bold; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 2px solid #333; }
+            @page { size: landscape; margin: 0.5cm; }
+            .no-print, .navbar, .theme-switch { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0; }
+            .container-fluid { width: 100% !important; padding: 0 !important; }
+            .table-relatorio { width: 100% !important; border: 1px solid #000 !important; }
+            .table-relatorio thead th { background: #eee !important; color: black !important; border: 1px solid #000 !important; }
+            .table-relatorio td { border: 1px solid #ddd !important; color: black !important; }
+            #tituloRelatorio::before {
+                content: "RELATÓRIO DE EXECUÇÃO FINANCEIRA - SEC. MULHER PE";
+                display: block; font-size: 14pt; font-weight: bold; margin-bottom: 5px;
+            }
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom no-print">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Menu</a>
-    </div>
-</nav>
-<div class="container mt-5">
-    <div class="card card-custom no-print">
-        <div class="card-header bg-white">
-            <h5 class="card-title" style="color: #d81b60;">Filtro de Relatório Geral de Gastos</h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="contratoSelect" class="form-label">Contrato</label>
-                    <select class="form-select" id="contratoSelect">
-                        <option selected disabled value="">Selecione o Contrato</option>
-                        {% for contrato in contratos %}
-                        <option value="{{ contrato.id }}" data-nome="{{ contrato.nome }}">{{ contrato.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="loteSelect" class="form-label">Lote</label>
-                    <select class="form-select" id="loteSelect" disabled>
-                        <option selected disabled value="">Selecione o Lote</option>
-                    </select>
+<nav class="navbar navbar-expand-lg fixed-top navbar-custom no-print">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">
+            <i class="fa-solid fa-scale-balanced me-2"></i>Sec. Mulher PE
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fa-solid fa-bars text-primary"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Contratos</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastrar Contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Estoque Contrato</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Notas Fiscais</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Lançar Nota</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Histórico</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Gestão</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle de Gastos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('Relatorio.visualizar_relatorio_page') }}">Relatório Geral</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <button class="theme-switch" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+                <div class="dropdown">
+                    <a class="nav-link p-0" href="#" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user fa-2xl" style="color: var(--primary-color)"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.login_page') }}">Sair</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
-                <button type="button" class="btn btn-custom" id="selecionarBtn" disabled>Gerar Relatório</button>
-                <button type="button" onclick="window.print()" class="btn-acao" id="imprimirBtn" disabled>
-                    <i class="material-icons me-1" style="vertical-align: middle;">print</i> Imprimir/Salvar PDF
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 mt-4">
+    <div class="row mb-4 no-print">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: var(--primary-color)">
+                <i class="fa-solid fa-file-contract me-2"></i>Relatório Geral de Execução
+            </h2>
+            <p class="text-muted">Acompanhamento completo de saldos, consumos e valores financeiros.</p>
+        </div>
+    </div>
+
+    <div class="card card-custom p-4 no-print">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Contrato</label>
+                <select class="form-select" id="contratoSelect">
+                    <option selected disabled value="">Selecione...</option>
+                    {% for contrato in contratos %}
+                    <option value="{{ contrato.id }}" data-nome="{{ contrato.nome }}">{{ contrato.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Lote</label>
+                <select class="form-select" id="loteSelect" disabled>
+                    <option selected disabled value="">Selecione o Contrato primeiro</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn-gen w-100" id="selecionarBtn" disabled>
+                    <i class="fa-solid fa-sync me-2"></i>Gerar
+                </button>
+                <button onclick="window.print()" class="btn-print w-100" id="imprimirBtn" disabled>
+                    <i class="fa-solid fa-file-pdf me-2"></i>PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <h3 class="mt-5" style="color: #d81b60;" id="tituloRelatorio" data-contrato="" data-lote="">Relatório de Gastos Detalhado</h3>
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-custom">
-            <thead>
-                <tr>
-                    <th scope="col">Cód. Prod.</th>
-                    <th scope="col">Descrição</th>
-                    <th scope="col">Lote</th>
-                    <th scope="col">Qtd. Total</th>
-                    <th scope="col">Valor Unt.</th>
-                    <th scope="col">Valor Total</th>
-                    <th scope="col">Qtd. Gasta</th>
-                    <th scope="col">Valor Gasto</th>
-                    <th scope="col">Saldo Qtd.</th>
-                    <th scope="col">Saldo Valor</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-corpo">
-                <tr><td colspan="10" class="text-center">Selecione o Contrato e o Lote e clique em "Gerar Relatório".</td></tr>
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-color);" id="tituloRelatorio">
+                    <i class="fa-solid fa-list-ol me-2"></i>Detalhamento de Itens
+                </h5>
+                <span class="badge bg-primary no-print" id="infoContrato" style="display:none;"></span>
+            </div>
+            
+            <div class="table-responsive shadow-sm rounded-4">
+                <table class="table table-relatorio align-middle m-0">
+                    <thead>
+                        <tr>
+                            <th>Cód.</th>
+                            <th>Descrição</th>
+                            <th class="text-center">Qtd. Total</th>
+                            <th>V. Unit.</th>
+                            <th>V. Total</th>
+                            <th class="text-center">Qtd. Gasta</th>
+                            <th>V. Gasto</th>
+                            <th class="text-center">Saldo Qtd.</th>
+                            <th>Saldo Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo">
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-filter fa-3x mb-3 d-block opacity-25"></i>
+                                Selecione um contrato e lote para carregar o relatório.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // Mapa de Lotes: {contrato_id: [{id: 1, nome_lote: 'Lote A', ano: '2024', ...}]}
-    // Quando convertido para JSON, as chaves numéricas (IDs) tornam-se STRINGS.
     const lotesMap = {{ lotes_map | tojson }};
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -105,133 +246,88 @@
         const selecionarBtn = document.getElementById('selecionarBtn');
         const imprimirBtn = document.getElementById('imprimirBtn');
         const tabelaCorpo = document.getElementById('tabela-corpo');
-        const tituloRelatorio = document.getElementById('tituloRelatorio');
+        const themeBtn = document.getElementById('themeBtn');
 
-        function resetCampos() {
+        // Gerenciamento de Tema
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
+            themeBtn.innerHTML = target === 'light' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+        });
+
+        if(localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+
+        contratoSelect.addEventListener('change', function() {
+            const contratoId = this.value;
             loteSelect.innerHTML = '<option selected disabled value="">Selecione o Lote</option>';
             loteSelect.disabled = true;
             selecionarBtn.disabled = true;
-            imprimirBtn.disabled = true;
-            tabelaCorpo.innerHTML = '<tr><td colspan="10" class="text-center">Selecione o Contrato e o Lote e clique em "Gerar Relatório".</td></tr>';
-            tituloRelatorio.setAttribute('data-contrato', '');
-            tituloRelatorio.setAttribute('data-lote', '');
-        }
 
-        // 1. EVENTO DE MUDANÇA NO CONTRATO
-        contratoSelect.addEventListener('change', async function() {
-            // Pega o ID como STRING do value. Esta é a chave correta no lotesMap.
-            const contratoIdString = this.value; 
-            
-            resetCampos();
-            
-            // Busca lotes usando a STRING do ID.
-            const lotes = lotesMap[contratoIdString] || []; 
-            
+            const lotes = lotesMap[contratoId] || [];
             if (lotes.length > 0) {
                 loteSelect.disabled = false;
                 lotes.forEach(lote => {
-                    const option = document.createElement('option');
-                    // O value é o nome_lote puro, que o Flask espera no POST.
-                    option.value = lote.nome_lote; 
-                    option.textContent = `Lote ${lote.nome_lote} (${lote.ano || 'S/A'})`;
-                    loteSelect.appendChild(option);
+                    const opt = new Option(`Lote ${lote.nome_lote} (${lote.ano})`, lote.nome_lote);
+                    loteSelect.add(opt);
                 });
-            } else {
-                loteSelect.innerHTML = '<option selected disabled value="">Nenhum lote associado.</option>';
-                console.warn(`LotesMap: Nenhum lote encontrado para o Contrato ID: ${contratoIdString}.`);
             }
         });
 
-        // 2. EVENTO DE MUDANÇA NO LOTE (Ativar Botão)
-        loteSelect.addEventListener('change', function() {
-            selecionarBtn.disabled = false;
-            imprimirBtn.disabled = true;
-            tabelaCorpo.innerHTML = '<tr><td colspan="10" class="text-center">Clique em "Gerar Relatório" para carregar os dados.</td></tr>'; 
-        });
+        loteSelect.addEventListener('change', () => selecionarBtn.disabled = false);
 
-
-        // 3. Lógica para carregar os dados do Relatório
         selecionarBtn.addEventListener('click', async function() {
-            // Obtem o NOME do Contrato do atributo data-nome.
-            const selectedContratoOption = contratoSelect.options[contratoSelect.selectedIndex];
-            const contratoNome = selectedContratoOption.getAttribute('data-nome');
-            const loteNome = loteSelect.value; // Nome puro do lote (String)
-            
-            if (!contratoNome || !loteNome) {
-                alert('Por favor, selecione um Contrato e um Lote primeiro.');
-                return;
-            }
-
-            console.log("DEBUG F/E: Contrato ENVIADO (Nome):", contratoNome);
-            console.log("DEBUG F/E: Lote ENVIADO (Nome Puro):", loteNome);
+            const contratoNome = contratoSelect.options[contratoSelect.selectedIndex].dataset.nome;
+            const loteNome = loteSelect.value;
 
             selecionarBtn.disabled = true;
-            selecionarBtn.textContent = 'Gerando...';
-            imprimirBtn.disabled = true;
-            tabelaCorpo.innerHTML = ''; 
-
+            selecionarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            
             try {
-                const response = await fetch('/relatorio', { 
+                const response = await fetch('/relatorio', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contrato: contratoNome, lote: loteNome }) 
+                    body: JSON.stringify({ contrato: contratoNome, lote: loteNome })
                 });
-                
-                const jsonResponse = await response.json();
 
-                if (response.ok) {
-                    if (jsonResponse.status === 'Relatório geral de gasto gerado com sucesso!' && jsonResponse.data) {
-                        const data = jsonResponse.data;
+                const res = await response.json();
+
+                if (response.ok && res.data) {
+                    tabelaCorpo.innerHTML = '';
+                    res.data.forEach(item => {
+                        const sQtd = item['Qtd.Total'] - item['Qtd. Gasta'];
+                        const sVal = item['Valor Total'] - item['Valor Gasto'];
                         
-                        if (data.length > 0) {
-                            data.forEach(item => {
-                                const saldoQtd = item['Qtd.Total'] - item['Qtd. Gasta'];
-                                const saldoValor = item['Valor Total'] - item['Valor Gasto'];
-
-                                const novaLinha = document.createElement('tr');
-                                novaLinha.innerHTML = `
-                                    <td>${item['Cód. Prod.']}</td>
-                                    <td>${item['Desc.']}</td>
-                                    <td>${item['Lote']}</td>
-                                    <td>${item['Qtd.Total']}</td>
-                                    <td>R$ ${parseFloat(item['Valor Unt']).toFixed(2)}</td>
-                                    <td>R$ ${parseFloat(item['Valor Total']).toFixed(2)}</td>
-                                    <td>${item['Qtd. Gasta']}</td>
-                                    <td>R$ ${parseFloat(item['Valor Gasto']).toFixed(2)}</td>
-                                    <td>${saldoQtd}</td>
-                                    <td>R$ ${saldoValor.toFixed(2)}</td>
-                                `;
-                                tabelaCorpo.appendChild(novaLinha);
-                            });
-                            
-                            tituloRelatorio.setAttribute('data-contrato', contratoNome);
-                            tituloRelatorio.setAttribute('data-lote', loteNome);
-                            imprimirBtn.disabled = false; 
-
-                        } else {
-                            tabelaCorpo.innerHTML = '<tr><td colspan="10" class="text-center">Nenhum dado encontrado para o contrato e lote selecionados.</td></tr>';
-                        }
-                    } else {
-                        const errorMessage = jsonResponse.erro || 'Resposta de sucesso inesperada. Tente novamente.';
-                        alert(`Erro interno: ${errorMessage}`);
-                        tabelaCorpo.innerHTML = `<tr><td colspan="10" class="text-center" style="color: red;">ERRO: ${errorMessage}</td></tr>`;
-                    }
-                } else {
-                    const errorMessage = jsonResponse.erro || `Erro HTTP ${response.status}: Falha ao processar relatório.`;
-                    alert(`Erro na API: ${errorMessage}`);
-                    tabelaCorpo.innerHTML = `<tr><td colspan="10" class="text-center" style="color: red;">ERRO: ${errorMessage}</td></tr>`;
+                        const row = tabelaCorpo.insertRow();
+                        row.innerHTML = `
+                            <td class="fw-bold">${item['Cód. Prod.']}</td>
+                            <td style="max-width: 250px" class="text-truncate">${item['Desc.']}</td>
+                            <td class="text-center">${item['Qtd.Total']}</td>
+                            <td>R$ ${parseFloat(item['Valor Unt']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                            <td>R$ ${parseFloat(item['Valor Total']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                            <td class="text-center text-danger-custom">-${item['Qtd. Gasta']}</td>
+                            <td class="text-danger-custom">-R$ ${parseFloat(item['Valor Gasto']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                            <td class="text-center highlight-saldo">${sQtd}</td>
+                            <td class="highlight-saldo">R$ ${sVal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        `;
+                    });
+                    
+                    document.getElementById('infoContrato').innerText = `${contratoNome} - Lote ${loteNome}`;
+                    document.getElementById('infoContrato').style.display = 'inline-block';
+                    imprimirBtn.disabled = false;
                 }
-            } catch (error) {
-                console.error('Erro de conexão ou JSON inválido:', error);
-                alert('Erro crítico: Verifique o console ou o terminal do servidor para o erro 500.');
-                tabelaCorpo.innerHTML = '<tr><td colspan="10" class="text-center" style="color: red;">ERRO CRÍTICO (500 ou Rede): Falha ao processar.</td></tr>';
+            } catch (e) {
+                alert('Erro ao processar dados.');
             } finally {
                 selecionarBtn.disabled = false;
-                selecionarBtn.textContent = 'Gerar Relatório';
+                selecionarBtn.innerHTML = '<i class="fa-solid fa-sync me-2"></i>Gerar';
             }
         });
     });
 </script>
-
 </body>
 </html>

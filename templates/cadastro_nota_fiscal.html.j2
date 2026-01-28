@@ -1,246 +1,261 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Cadastro de Nota Fiscal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançar Nota - Sec. Mulher PE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #6f42c1;
+            --primary-hover: #59359a;
+            --bg-body: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --border-color: #e0e0e0;
+            --transition: all 0.3s ease;
+        }
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --nav-bg: rgba(30, 30, 30, 0.9);
+            --border-color: #444444;
+        }
 
-  <style>
-    body {
-      background-color: #f9f9f9;
-    }
-    .navbar-custom {
-      background-color: #ffffff;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      border-bottom: 3px solid #d81b60;
-    }
-    .navbar-custom.nav-link,
-    .navbar-custom.navbar-brand {
-      color: #d81b60;
-      font-weight: bold;
-    }
-    .navbar-custom.nav-link:hover {
-      color: #ff69b4;
-    }
-    .dropdown-menu {
-      border: none;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      background-color: #ffffff;
-    }
-    .dropdown-item {
-      color: #d81b60;
-      transition: background-color 0.3s ease;
-    }
-    .dropdown-item:hover {
-      background-color: #fff0f5;
-    }
-    .nav-item.dropdown:hover .dropdown-menu {
-      display: block;
-    }
-    .card-custom {
-      border: 1px solid #d81b60;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-    .btn-custom {
-      background-color: #d81b60;
-      color: white;
-      border: none;
-    }
-    .btn-custom:hover {
-      background-color: #ff69b4;
-      color: white;
-    }
-    .btn-salvar {
-      background-color: #4a148c;
-      color: white;
-      border: none;
-    }
-    .btn-salvar:hover {
-      background-color: #7b1fa2;
-      color: white;
-    }
-    .table-custom th, .table-custom td {
-      border: 1px solid #d81b60;
-      vertical-align: middle;
-    }
-    .table-custom th {
-      background-color: #d81b60;
-      color: white;
-    }
-    .table-custom tr:nth-child(even) {
-      background-color: #fce4ec;
-    }
-    .table-custom tr:nth-child(odd) {
-      background-color: #fff0f5;
-    }
-    .form-control[readonly] {
-      background-color: #e9ecef;
-      opacity: 1;
-    }
-  </style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300; /* Letra mais fina conforme solicitado */
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            padding-top: 100px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navbar Unificada */
+        .navbar-custom {
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--primary-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
+        .nav-link { color: var(--text-color) !important; font-weight: 500; margin: 0 5px; }
+        .dropdown-menu { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+        .card-custom {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 10px 15px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-control[readonly] {
+            background-color: rgba(111, 66, 193, 0.05);
+            cursor: not-allowed;
+            font-weight: 500;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            color: white; border: none; border-radius: 12px;
+            padding: 10px 20px; transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .btn-primary-custom:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Botão de Tema */
+        .theme-switch {
+            background: var(--primary-color);
+            color: white; border: none; width: 40px; height: 40px; border-radius: 10px;
+            transition: var(--transition);
+        }
+    </style>
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('home.home') }}">Secretaria da Mulher</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Contratos
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastro contrato</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Cadastro nota de empenho</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar notas de empenho</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Notas Fiscais
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Cadastrar nota fiscal</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Visualizar notas fiscais</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Controle
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle gastos</a></li>
-            </ul>
-          </li>
-        </ul>
+<nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home.home') }}">
+            <i class="fa-solid fa-scale-balanced me-2"></i>Sec. Mulher PE
+        </a>
+        
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fa-solid fa-bars text-primary"></i>
+        </button>
 
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              <span class="material-icons">account_circle</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#">Trocar de conta</a></li>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Contratos</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('contrato.contratos_page') }}">Cadastrar Contrato</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.contrato_produto_page') }}">Estoque Contrato</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('contrato_produto.visualizar_contrato_produto_page') }}">Visualizar Estoques</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Notas Fiscais</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.cadastro_nota_fiscal_page') }}">Lançar Nota</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('nota_fiscal.visualizar_notas_fiscais_page') }}">Histórico</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Gestão</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('controle_gasto.controle_gasto_page') }}">Controle de Gastos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('Relatorio.visualizar_relatorio_page') }}">Relatório Geral</a></li>
+                    </ul>
+                </li>
             </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
 
-  <div class="container mt-5">
-    <div class="card card-custom">
-      <div class="card-header bg-white">
-        <h5 class="card-title" style="color:#d81b60;">Cadastro de Nota Fiscal</h5>
-      </div>
-      <div class="card-body">
-        <div class="row g-3 mb-3">
-          <div class="col-md-4">
-            <label for="nomeNf" class="form-label">Nome da Nota Fiscal</label>
-            <input type="text" class="form-control" id="nomeNf" placeholder="Ex: NF-00123456" required>
-          </div>
-          <div class="col-md-4">
-            <label for="dataEmissao" class="form-label">Data de Emissão</label>
-            <input type="date" class="form-control" id="dataEmissao" required>
-          </div>
-          <div class="col-md-4">
-            <label for="selectContrato" class="form-label">Contrato</label>
-            <select class="form-select" id="selectContrato" required>
-              <option selected disabled value="">Selecione um contrato...</option>
-              {% for contrato in contratos %}
-              <option value="{{ contrato.id }}" data-tipo="{{ contrato.tipo }}">{{ contrato.nome }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label for="selectLote" class="form-label">Lote</label>
-            <div class="input-group">
-              <select class="form-select" id="selectLote" disabled required>
-                <option selected disabled value="">Selecione um lote...</option>
-              </select>
-              <button class="btn btn-custom" type="button" id="btnSelecionar" disabled>Selecionar Produtos</button>
+            <div class="d-flex align-items-center gap-3">
+                <button class="theme-switch" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+                <div class="dropdown">
+                    <a class="nav-link p-0" href="#" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user fa-2xl" style="color: var(--primary-color)"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.login_page') }}">Sair</a></li>
+                    </ul>
+                </div>
             </div>
-          </div>
-          <div class="col-md-4" hidden>
-            <label for="casaLote" class="form-label">Casa do Lote</label>
-            <input type="text" class="form-control" id="casaLote" readonly>
-          </div>
-          <div class="col-md-4">
-            <label for="tipoContrato" class="form-label">Tipo do Contrato</label>
-            <input type="text" class="form-control" id="tipoContrato" readonly>
-          </div>
         </div>
-        <hr>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold" style="color: var(--primary-color)">Lançar Nota Fiscal</h2>
+            <p class="text-muted">Preencha os dados da nota e adicione os itens correspondentes.</p>
+        </div>
+    </div>
+
+    <div class="card card-custom p-4">
         <div class="row g-3">
-          <div class="col-md-3">
-            <label for="selectProduto" class="form-label">Código do Produto</label>
-            <select class="form-select" id="selectProduto" disabled>
-              <option selected disabled value="">Selecione um produto...</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label for="descricaoProduto" class="form-label">Descrição</label>
-            <input type="text" class="form-control" id="descricaoProduto" readonly>
-          </div>
-          <div class="col-md-3">
-            <label for="quantidade" class="form-label">Quantidade Recebida</label>
-            <input type="number" class="form-control" id="quantidade" min="1" value="1">
-          </div>
-          <div class="col-md-3">
-            <label for="valorUnitario" class="form-label">Valor Unitário NF</label>
-            <input type="number" class="form-control" id="valorUnitario" min="0" step="0.01" value="0.00">
-          </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Número da NF</label>
+                <input type="text" class="form-control" id="nomeNf" placeholder="Ex: NF-123">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Data de Emissão</label>
+                <input type="date" class="form-control" id="dataEmissao">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Contrato</label>
+                <select class="form-select" id="selectContrato">
+                    <option selected disabled value="">Selecione...</option>
+                    {% for contrato in contratos %}
+                    <option value="{{ contrato.id }}">{{ contrato.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Lote</label>
+                <div class="input-group">
+                    <select class="form-select" id="selectLote" disabled>
+                        <option selected disabled value="">Aguardando Contrato...</option>
+                    </select>
+                    <button class="btn btn-outline-custom" id="btnSelecionar" disabled type="button">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
-          <button type="button" class="btn btn-custom" id="adicionarItem" disabled>Adicionar Item</button>
-          <button type="button" class="btn btn-salvar" id="salvarItens" disabled>Salvar Nota</button>
-        </div>
-      </div>
     </div>
 
-    <h3 class="mt-5" style="color:#d81b60;">Produtos na Nota Fiscal</h3>
-    <div class="table-responsive">
-      <table class="table table-striped table-hover table-custom">
-        <thead>
-          <tr>
-            <th scope="col">Código do Produto</th>
-            <th scope="col">Descrição</th>
-            <th scope="col">Quantidade</th>
-            <th scope="col">Valor Unitário NF</th>
-            <th scope="col">Valor Total</th>
-            <th scope="col">Ação</th>
-          </tr>
-        </thead>
-        <tbody id="tabela-produtos">
-        </tbody>
-      </table>
+    <div class="card card-custom p-4" style="border: 1px dashed var(--primary-color); background: rgba(111, 66, 193, 0.02)">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Código do Produto</label>
+                <select class="form-select" id="selectProduto" disabled>
+                    <option selected disabled value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Descrição</label>
+                <input type="text" class="form-control" id="descricaoProduto" readonly placeholder="Auto-preenchimento">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Quantidade</label>
+                <input type="number" class="form-control" id="quantidade" value="1" min="1">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">V. Unitário (R$)</label>
+                <input type="text" class="form-control" id="valorUnitario" readonly placeholder="0,00">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label d-block">&nbsp;</label>
+                <button class="btn btn-primary-custom w-100" id="adicionarItem" disabled>
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Código</th>
+                        <th>Descrição</th>
+                        <th>Qtd</th>
+                        <th>Unitário</th>
+                        <th>Total</th>
+                        <th class="text-center pe-4">Remover</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-produtos"></tbody>
+            </table>
+        </div>
+    </div>
 
-  <script>
-    // 💡 Variável global que o backend enviou via Jinja
+    <div class="text-end mb-5">
+        <button class="btn btn-primary-custom px-5 py-3 shadow-lg" id="salvarItens" disabled>
+            <i class="fa-solid fa-cloud-arrow-up me-2"></i>Finalizar Lançamento
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
     const lotesMap = {{ lotes_map|tojson }};
     const produtos_para_salvar = [];
 
-    const btnSelecionar = document.getElementById('btnSelecionar');
     const selectContrato = document.getElementById('selectContrato');
     const selectLote = document.getElementById('selectLote');
-    const casaLote = document.getElementById('casaLote');
-    const tipoContrato = document.getElementById('tipoContrato');
+    const btnSelecionar = document.getElementById('btnSelecionar');
     const selectProduto = document.getElementById('selectProduto');
     const descricaoProduto = document.getElementById('descricaoProduto');
     const valorUnitario = document.getElementById('valorUnitario');
@@ -248,270 +263,128 @@
     const btnSalvar = document.getElementById('salvarItens');
     const tabelaCorpo = document.getElementById('tabela-produtos');
 
-    // Função auxiliar para resetar os campos de lote e produto
-    function resetLoteEProduto() {
-      selectLote.innerHTML = '<option selected disabled value="">Selecione um lote...</option>';
-      selectLote.disabled = true;
-      casaLote.value = '';
-      tipoContrato.value = '';
-      selectProduto.innerHTML = '<option selected disabled value="">Selecione um produto...</option>';
-      selectProduto.disabled = true;
-      descricaoProduto.value = '';
-      valorUnitario.value = '0.00';
-      document.getElementById('quantidade').value = '1';
-      btnSelecionar.disabled = true;
-      btnAdicionar.disabled = true;
+    // Lógica de Lotes
+    selectContrato.addEventListener('change', function() {
+        const contratoId = this.value;
+        selectLote.innerHTML = '<option selected disabled value="">Selecione um lote...</option>';
+        const lotes = lotesMap[contratoId] || [];
+        if (lotes.length > 0) {
+            selectLote.disabled = false;
+            lotes.forEach(l => {
+                const opt = new Option(`${l.nome_lote} (${l.ano})`, l.id);
+                selectLote.add(opt);
+            });
+        }
+        resetInterface();
+    });
+
+    selectLote.addEventListener('change', () => {
+        btnSelecionar.disabled = false;
+        resetInterface();
+    });
+
+    // Buscar Produtos
+    btnSelecionar.addEventListener('click', async () => {
+        const cId = selectContrato.value;
+        const lId = selectLote.value;
+        btnSelecionar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        try {
+            const res = await fetch(`/contrato/produtos_por_contrato_lote/${cId}/${lId}`);
+            const produtos = await res.json();
+            
+            selectProduto.innerHTML = '<option selected disabled value="">Selecione...</option>';
+            produtos.forEach(p => {
+                const opt = new Option(p.nome, p.id);
+                opt.dataset.desc = p.descricao || "Sem descrição";
+                opt.dataset.preco = p.preco_unitario || 0;
+                selectProduto.add(opt);
+            });
+            selectProduto.disabled = false;
+            btnAdicionar.disabled = false;
+        } catch (e) { alert("Erro ao carregar produtos."); }
+        finally { btnSelecionar.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>'; }
+    });
+
+    selectProduto.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        descricaoProduto.value = opt.dataset.desc;
+        valorUnitario.value = parseFloat(opt.dataset.preco).toFixed(2);
+    });
+
+    btnAdicionar.addEventListener('click', () => {
+        const pId = parseInt(selectProduto.value);
+        const codigo = selectProduto.options[selectProduto.selectedIndex].text;
+        const desc = descricaoProduto.value;
+        const qtd = parseFloat(document.getElementById('quantidade').value);
+        const vUnit = parseFloat(valorUnitario.value);
+
+        if(!pId || qtd <= 0) return alert("Verifique os dados do produto");
+        if(produtos_para_salvar.some(p => p.produto_id === pId)) return alert("Este produto já foi adicionado.");
+
+        produtos_para_salvar.push({ produto_id: pId, quantidade_recebida: qtd, preco_unitario_nf: vUnit });
+        
+        const row = tabelaCorpo.insertRow();
+        row.innerHTML = `
+            <td class="ps-4"><span class="badge bg-secondary">${codigo}</span></td>
+            <td>${desc}</td>
+            <td>${qtd}</td>
+            <td>R$ ${vUnit.toFixed(2)}</td>
+            <td><strong>R$ ${(qtd * vUnit).toFixed(2)}</strong></td>
+            <td class="text-center pe-4">
+                <button class="btn btn-sm text-danger border-0 bg-transparent" onclick="remove(this, ${pId})">
+                    <i class="fa-solid fa-circle-xmark fa-xl"></i>
+                </button>
+            </td>
+        `;
+        btnSalvar.disabled = false;
+        selectProduto.value = ""; descricaoProduto.value = ""; valorUnitario.value = "";
+    });
+
+    function remove(btn, id) {
+        const idx = produtos_para_salvar.findIndex(p => p.produto_id === id);
+        produtos_para_salvar.splice(idx, 1);
+        btn.closest('tr').remove();
+        btnSalvar.disabled = produtos_para_salvar.length === 0;
     }
 
-    // 1. EVENTO DE MUDANÇA NO CONTRATO
-    selectContrato.addEventListener('change', function() {
-      const contratoId = this.value;
-      const selectedOption = this.options[this.selectedIndex];
-
-      // Resetar tudo abaixo
-      resetLoteEProduto();
-      produtos_para_salvar.length = 0;
-      tabelaCorpo.innerHTML = '';
-      btnSalvar.disabled = true;
-
-      // Exibir Tipo do Contrato
-      tipoContrato.value = selectedOption.dataset.tipo || 'N/A';
-
-      // Carregar e preencher Lotes
-      const lotes = lotesMap[contratoId] || [];
-
-      if (lotes.length > 0) {
-        selectLote.disabled = false;
-        lotes.forEach(lote => {
-          const option = document.createElement('option');
-          option.value = lote.id;
-
-          // 🛑 CORREÇÃO AQUI: Remove "Lote" fixo
-          option.textContent = `${lote.nome_lote} (${lote.ano})`;
-
-          option.setAttribute('data-casa', lote.casa);
-          selectLote.appendChild(option);
-        });
-      } else {
-        selectLote.innerHTML = '<option selected disabled value="">Nenhum lote associado.</option>';
-      }
-    });
-
-    // 2. EVENTO DE MUDANÇA NO LOTE ⬅️ ATUALIZADO
-    selectLote.addEventListener('change', function() {
-      const selectedOption = this.options[this.selectedIndex];
-      const casa = selectedOption.dataset.casa;
-
-      // Atualizar campo Casa
-      casaLote.value = casa || '';
-
-      // Ativar botão de Selecionar Produtos (agora por Contrato + Lote)
-      btnSelecionar.disabled = false;
-
-      // Limpar lista de produtos da NF e lista para salvar
-      produtos_para_salvar.length = 0;
-      tabelaCorpo.innerHTML = '';
-      btnSalvar.disabled = true;
-
-      // Resetar campos de Produto
-      selectProduto.innerHTML = '<option selected disabled value="">Selecione um produto...</option>';
-      selectProduto.disabled = true;
-      descricaoProduto.value = '';
-      valorUnitario.value = '0.00';
-    });
-
-    // 3. EVENTO DE CLIQUE PARA SELECIONAR PRODUTOS (AJAX) ⬅️ ATUALIZADO
-    btnSelecionar.addEventListener('click', async function() {
-      const contratoId = selectContrato.value;
-      const loteId = selectLote.value;
-
-      if (!contratoId || !loteId) {
-        alert('Por favor, selecione um contrato e um lote primeiro.');
-        return;
-      }
-
-      btnSelecionar.textContent = 'Carregando...';
-      btnSelecionar.disabled = true;
-      selectProduto.disabled = true;
-
-      try {
-        // Rota AJAX ATUALIZADA para incluir o LOTE ID
-        const url = `/contrato/produtos_por_contrato_lote/${contratoId}/${loteId}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          alert('Erro ao carregar produtos: ' + errorData.message);
-          return;
-        }
-
-        const produtos = await response.json();
-
-        selectProduto.innerHTML = '<option selected disabled value="">Selecione um produto...</option>';
-        if (produtos.length === 0) {
-          alert('Nenhum produto cadastrado para este Contrato/Lote.');
-          selectProduto.innerHTML = '<option selected disabled value="">Nenhum produto disponível.</option>';
-        } else {
-          produtos.forEach(produto => {
-            const option = document.createElement('option');
-            option.value = produto.id;
-            option.textContent = produto.nome;
-            option.setAttribute('data-descricao', produto.descricao);
-            option.setAttribute('data-preco', produto.preco_unitario);
-            selectProduto.appendChild(option);
-          });
-          selectProduto.disabled = false;
-        }
-
-        btnAdicionar.disabled = produtos.length === 0;
-
-      } catch (error) {
-        console.error('Erro na requisição:', error);
-        alert('Erro ao carregar produtos. Tente novamente.');
-      } finally {
-        btnSelecionar.textContent = 'Selecionar Produtos';
-        // O botão de selecionar produtos é reativado
-        btnSelecionar.disabled = false;
-      }
-    });
-
-    // 4. EVENTO DE MUDANÇA NO PRODUTO
-    selectProduto.addEventListener('change', function() {
-      const selectedOption = this.options[this.selectedIndex];
-      if (selectedOption.value) {
-        descricaoProduto.value = selectedOption.dataset.descricao;
-        // Define o preço unitário do Contrato como valor inicial, mas permite edição
-        valorUnitario.value = parseFloat(selectedOption.dataset.preco).toFixed(2);
-      } else {
+    function resetInterface() {
+        selectProduto.disabled = true;
         descricaoProduto.value = "";
-        valorUnitario.value = "0.00";
-      }
+        valorUnitario.value = "";
+        tabelaCorpo.innerHTML = '';
+        produtos_para_salvar.length = 0;
+        btnSalvar.disabled = true;
+    }
+
+    btnSalvar.addEventListener('click', async () => {
+        const payload = {
+            nome_nf: document.getElementById('nomeNf').value,
+            data_emissao: document.getElementById('dataEmissao').value,
+            contrato_id: parseInt(selectContrato.value),
+            lote_id: parseInt(selectLote.value),
+            produtos: produtos_para_salvar
+        };
+
+        if(!payload.nome_nf || !payload.data_emissao) return alert("Preencha o número e a data da nota.");
+
+        try {
+            const res = await fetch('/notafiscal/cadastro', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if(res.ok) { alert("Sucesso!"); window.location.reload(); }
+        } catch(e) { alert("Erro de conexão."); }
     });
 
-    // 5. EVENTO DE ADICIONAR ITEM NA TABELA
-    document.getElementById('adicionarItem').addEventListener('click', function() {
-      const produtoId = selectProduto.value;
-      const codigoProduto = selectProduto.options[selectProduto.selectedIndex].textContent;
-      const descricao = descricaoProduto.value;
-      // Pega a quantidade e o valor unitário digitados pelo usuário
-      const quantidade = parseFloat(document.getElementById('quantidade').value);
-      const valorUnitarioNF = parseFloat(document.getElementById('valorUnitario').value); // Valor da NF
-      const valorUnitarioOriginal = parseFloat(selectProduto.options[selectProduto.selectedIndex].dataset.preco);
-
-      // Validações
-      if (!produtoId || isNaN(quantidade) || isNaN(valorUnitarioNF) || quantidade <= 0 || valorUnitarioNF <= 0) {
-        alert('Por favor, preencha todos os campos do produto corretamente. O valor unitário da NF deve ser maior que zero.');
-        return;
-      }
-
-      // Evita duplicatas
-      if (produtos_para_salvar.some(p => p.produto_id === parseInt(produtoId))) {
-        alert('Este produto já foi adicionado à nota fiscal. Remova-o antes de tentar adicionar novamente.');
-        return;
-      }
-
-      const valorTotal = (quantidade * valorUnitarioNF).toFixed(2);
-
-      const novaLinha = document.createElement('tr');
-
-      // Adicionar botão de exclusão
-      novaLinha.innerHTML = `
-        <td>${codigoProduto}</td>
-        <td>${descricao}</td>
-        <td>${quantidade}</td>
-        <td>R$${valorUnitarioNF.toFixed(2)}</td>
-        <td>R$${valorTotal}</td>
-        <td><button class="btn btn-sm btn-danger remover-item" data-produto-id="${produtoId}">Remover</button></td>
-      `;
-
-      tabelaCorpo.appendChild(novaLinha);
-
-      produtos_para_salvar.push({
-        produto_id: parseInt(produtoId),
-        quantidade_recebida: quantidade,
-        preco_unitario_nf: valorUnitarioNF
-      });
-
-      // Adiciona listener para o novo botão de remover
-      novaLinha.querySelector('.remover-item').addEventListener('click', function() {
-        const idToRemove = parseInt(this.dataset.produtoId);
-        const indexToRemove = produtos_para_salvar.findIndex(p => p.produto_id === idToRemove);
-
-        if (indexToRemove > -1) {
-          produtos_para_salvar.splice(indexToRemove, 1);
-        }
-        novaLinha.remove();
-
-        // Desabilita o botão salvar se a lista ficar vazia
-        if (produtos_para_salvar.length === 0) {
-          btnSalvar.disabled = true;
-        }
-      });
-
-      // Limpar campos de entrada do item
-      selectProduto.value = "";
-      descricaoProduto.value = "";
-      document.getElementById('quantidade').value = '1';
-      valorUnitario.value = "0.00";
-
-      btnSalvar.disabled = false;
+    // Tema Dark/Light
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+        const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.innerHTML = theme === 'light' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
     });
-
-    // 6. EVENTO DE SALVAR NOTA FISCAL (AJAX POST) ⬅️ CORREÇÃO CRÍTICA
-    document.getElementById('salvarItens').addEventListener('click', async function() {
-      const nomeNf = document.getElementById('nomeNf').value.trim();
-      const dataEmissao = document.getElementById('dataEmissao').value;
-      const contratoId = document.getElementById('selectContrato').value;
-      const loteId = document.getElementById('selectLote').value; // 💡 PEGA O LOTE ID
-
-      if (!nomeNf || !dataEmissao || !contratoId || !loteId) {
-        alert('Por favor, preencha o nome da NF, a data, e selecione o Contrato e o Lote.');
-        return;
-      }
-
-      if (produtos_para_salvar.length === 0) {
-        alert('Não há produtos para salvar na nota fiscal.');
-        return;
-      }
-
-      btnSalvar.disabled = true;
-      btnSalvar.textContent = 'Salvando...';
-
-      const dataToSend = {
-        nome_nf: nomeNf,
-        data_emissao: dataEmissao,
-        contrato_id: parseInt(contratoId),
-        lote_id: parseInt(loteId), // 💡 ENVIA O LOTE ID PARA O BACKEND
-        produtos: produtos_para_salvar
-      };
-
-      try {
-        const response = await fetch('/notafiscal/cadastro', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dataToSend)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert('Nota Fiscal e produtos salvos com sucesso!');
-          // Resetar formulário após sucesso
-          window.location.reload();
-        } else {
-          console.error('Erro ao salvar a nota fiscal:', result.message);
-          alert(`Erro ao salvar a nota fiscal: ${result.message}`);
-        }
-      } catch (error) {
-        console.error('Erro na requisição:', error);
-        alert('Erro de conexão com o servidor.');
-      } finally {
-        btnSalvar.disabled = false;
-        btnSalvar.textContent = 'Salvar Nota';
-      }
-    });
-  </script>
+</script>
 </body>
 </html>

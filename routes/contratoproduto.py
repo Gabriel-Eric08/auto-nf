@@ -17,31 +17,54 @@ contrato_produto_route = Blueprint('contrato_produto', __name__)
 def contrato_produto_page():
     username = request.cookies.get('username')
     password = request.cookies.get('password')
-    validate = user_service.validate_login(username,password)
+    validate = user_service.validate_login(username, password)
+    
     if validate:
         todos_contratos = Contrato.query.order_by(Contrato.nome).all()
+        
+        # --- DEBUG TERMINAL ---
+        print("\n=== DIAGNÓSTICO DE DADOS ===")
+        for c in todos_contratos:
+            lotes = [assoc.lote.nome_lote for assoc in c.lotes_associados]
+            print(f"Contrato: {c.nome} | Lotes Associados: {lotes}")
+        print("============================\n")
+        # ----------------------
+
         todos_lotes = Lote.query.order_by(Lote.nome_lote).all()
         return render_template('cadastro_contratoproduto.html.j2', 
                                contratos=todos_contratos, 
                                lotes=todos_lotes)
     else:
-        return "Erro de autenticação. Por favor, faça login novamente."
+        return "Erro de autenticação.", 401
 
 def save_produtos_to_db(contrato_id, produtos_data, lote_id):
     """
-    Função centralizada para salvar produtos no banco de dados,
-    agora com registro de atividade.
+    Função centralizada para salvar produtos no banco de dados.
+    Corrigida para garantir que usuario_id seja um Inteiro no log.
     """
     
-    # 1. OBTÉM O ID DO USUÁRIO LOGADO A PARTIR DO COOKIE
-    user_id = get_username_from_cookie()
-    if not user_id:
-        # Nota: Retorna 401 aqui, mas idealmente, o tratamento de erro deveria 
-        # garantir que 'user_id' seja int ou que a sessão seja fechada mais cedo.
-        return jsonify({"message": "Erro de autenticação: ID de usuário logado não encontrado (via cookie)."}, 401)
+    # 1. OBTÉM A IDENTIDADE DO USUÁRIO (Pode vir string 'biel' ou ID '1')
+    user_identity = get_username_from_cookie()
+    if not user_identity:
+        return jsonify({"message": "Erro de autenticação: Usuário não encontrado no cookie."}, 401)
+
+    # 2. CONVERTE IDENTIDADE PARA OBJETO USUÁRIO (Para pegar o ID numérico)
+    # Tenta buscar pelo nome de usuário primeiro
+    user_obj = User.query.filter_by(usuario=str(user_identity)).first()
+    
+    # Se não achar pelo nome e for um número, tenta buscar pelo ID direto
+    if not user_obj and str(user_identity).isdigit():
+        user_obj = User.query.get(int(user_identity))
+
+    if not user_obj:
+        return jsonify({"message": f"Usuário '{user_identity}' não existe na tabela 'users'."}), 404
+
+    # Variáveis seguras para o banco
+    user_id_int = user_obj.id
+    nome_usuario = user_obj.usuario
 
     try:
-        # Garante que os IDs são inteiros, se não forem None
+        # Garante que os IDs principais são inteiros
         contrato_id = int(contrato_id)
         lote_id = int(lote_id)
         
@@ -54,10 +77,6 @@ def save_produtos_to_db(contrato_id, produtos_data, lote_id):
         if not lote_existente:
             return jsonify({"message": "Lote não encontrado."}), 404
 
-        # Busca o nome de usuário uma vez, fora do loop (melhor performance e legibilidade)
-        user = User.query.get(user_id)
-        nome_usuario = user.usuario if user else f"ID {user_id}"
-
         for prod_item in produtos_data:
             codigo_produto = prod_item.get('codigo_produto')
             descricao_produto = prod_item.get('descricao_produto', '')
@@ -66,9 +85,9 @@ def save_produtos_to_db(contrato_id, produtos_data, lote_id):
 
             if not codigo_produto:
                 db.session.rollback()
-                return jsonify({"message": "Cada item de produto deve ter 'codigo_produto'."}), 400
+                return jsonify({"message": "Cada item deve ter 'codigo_produto'."}), 400
             
-            # Checagem de duplicidade (Contrato-Produto-Lote) - (Código omitido por brevidade)
+            # Checagem de duplicidade
             existing_assoc = db.session.query(ContratoProduto) \
                 .join(Produto, ContratoProduto.produto_id == Produto.id) \
                 .filter(ContratoProduto.contrato_id == contrato_id,
@@ -78,18 +97,18 @@ def save_produtos_to_db(contrato_id, produtos_data, lote_id):
             
             if existing_assoc:
                 db.session.rollback()
-                return jsonify({"message": f"O produto '{codigo_produto}' já foi cadastrado para este contrato e lote."}), 409
+                return jsonify({"message": f"O produto '{codigo_produto}' já existe neste contrato/lote."}), 409
 
-            # Busca o produto existente ou cria um novo
+            # Busca ou cria o produto
             produto = Produto.query.filter_by(nome=codigo_produto).first()
             is_new_product = False
             if not produto:
                 produto = Produto(nome=codigo_produto, descricao=descricao_produto)
                 db.session.add(produto)
-                db.session.flush()
+                db.session.flush() 
                 is_new_product = True
 
-            # Cria a associação ContratoProduto
+            # Cria a associação
             contrato_produto = ContratoProduto(
                 contrato_id=contrato_existente.id,
                 produto_id=produto.id,
@@ -98,55 +117,48 @@ def save_produtos_to_db(contrato_id, produtos_data, lote_id):
                 preco_unitario=preco_unitario
             )
             db.session.add(contrato_produto)
-            db.session.flush() # CRÍTICO: Obtém o ID do ContratoProduto recém-criado
+            db.session.flush() 
             
-            # --- BLOC DE LOG CORRIGIDO 1: ContratoProduto ---
-            # CORREÇÃO: Usar o nome do produto e do lote na mensagem para ser descritivo
-            mensagem_contrato_produto = (
-                f"Associação criada: O produto '{codigo_produto}' (ID: {produto.id}) foi vinculado "
-                f"ao Contrato ID {contrato_id} e Lote '{lote_existente.nome_lote}' (ID: {lote_id}) "
-                f"pelo usuário {nome_usuario}."
+            # --- LOG 1: ContratoProduto (USANDO user_id_int) ---
+            mensagem_cp = (
+                f"Associação: Produto '{codigo_produto}' (ID: {produto.id}) vinculado "
+                f"ao Contrato {contrato_id} e Lote '{lote_existente.nome_lote}' "
+                f"por {nome_usuario}."
             )
 
             log_registro = Registros(
-                mensagem=mensagem_contrato_produto,
-                usuario_id=user_id, 
+                mensagem=mensagem_cp,
+                usuario_id=user_id_int, # <--- Inteiro garantido aqui
                 tabela='contrato_produtos',
                 id_linha=contrato_produto.id, 
-                tipo_acao='CREATE_ASSOC', # Renomeado para ser mais específico
+                tipo_acao='CREATE_ASSOC',
                 alerta=0
             )
             db.session.add(log_registro)
             
-            # --- BLOC DE LOG CORRIGIDO 2: Produto ---
+            # --- LOG 2: Produto Novo ---
             if is_new_product:
-                mensagem_produto_novo = (
-                    f"Produto novo criado: O código '{codigo_produto}' foi registrado na tabela 'produtos' "
-                    f"pelo usuário {nome_usuario} para uso no Contrato ID {contrato_id}."
-                )
+                mensagem_p = f"Produto novo '{codigo_produto}' criado por {nome_usuario}."
                 log_produto = Registros(
-                    mensagem=mensagem_produto_novo, # Adicionando a mensagem
-                    usuario_id=user_id,
+                    mensagem=mensagem_p,
+                    usuario_id=user_id_int, # <--- Inteiro garantido aqui
                     tabela='produtos',
                     id_linha=produto.id, 
-                    tipo_acao='CREATE_PROD',      # Adicionando tipo_acao
-                    alerta=0                      # Adicionando alerta
+                    tipo_acao='CREATE_PROD',
+                    alerta=0
                 )
                 db.session.add(log_produto)
 
-
         db.session.commit()
         return jsonify({
-            "message": "Itens do contrato e lote associados com sucesso!",
+            "message": "Itens cadastrados com sucesso!",
             "contrato_id": contrato_existente.id
         }), 201
 
     except Exception as e:
         db.session.rollback()
-        print(f"Erro ao salvar produtos: {e}")
-        # traceback.print_exc() # Mantendo o traceback para depuração
+        print(f"ERRO CRÍTICO NO BANCO: {e}")
         return jsonify({"message": f"Erro interno do servidor: {str(e)}"}), 500
-
 # Rota para cadastro manual (recebe JSON)
 @contrato_produto_route.route('/contratoproduto', methods=['POST'])
 def add_contratoproduto():

@@ -1,159 +1,258 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Empresa</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fce4ec;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .login-container {
-      background-color: #fff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      box-sizing: border-box;
-    }
-    .main-title {
-      color: #d81b60;
-      font-size: 24px;
-      margin-bottom: 30px;
-      font-weight: bold;
-    }
-    .login-container h2 {
-      color: #d81b60;
-      margin-bottom: 25px;
-      font-weight: bold;
-    }
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #4a4a4a;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: #ff69b4;
-      box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
-    }
-    .login-button {
-      width: 100%;
-      padding: 15px;
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .login-button:hover {
-      background-color: #e0529d;
-    }
-    .signup-text {
-      margin-top: 25px;
-      font-size: 14px;
-      color: #6a6a6a;
-    }
-    .signup-text a {
-      color: #ff69b4;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.3s ease;
-    }
-    .signup-text a:hover {
-      color: #e0529d;
-    }
-    .support-info {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #888;
-      line-height: 1.5;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Sec. Mulher PE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #6f42c1;
+            --primary-hover: #59359a;
+            --bg-body: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #e0e0e0;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --input-border: #333333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .main-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-weight: 300;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            opacity: 0.6;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .login-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 66, 193, 0.2);
+        }
+
+        .support-info {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.6;
+            padding: 0 10px;
+        }
+
+        #error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+            background: rgba(220, 53, 69, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Botão flutuante para trocar tema na tela de login */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--input-border);
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
 <body>
 
+<button class="theme-toggle-btn" id="themeBtn">
+    <i class="fa-solid fa-moon"></i>
+</button>
+
 <div class="login-container">
-  <h1 class="main-title">SECRETARIA DA MULHER</h1>
-  <h2>Controle de contratos</h2>
-  <form action="#" method="post">
-    <div class="form-group">
-      <input type="text" id="username" name="username" placeholder="Usuária ou E-mail" required>
+    <i class="fa-solid fa-scale-balanced brand-icon"></i>
+    <h1 class="main-title">SECRETARIA DA MULHER</h1>
+    <p class="subtitle">Controle de Contratos e Gastos</p>
+
+    <div id="error-msg">Usuário ou senha incorretos.</div>
+
+    <form onsubmit="make_login(event)">
+        <div class="form-group">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="username" placeholder="Usuária ou E-mail" required>
+        </div>
+        <div class="form-group">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="Senha" required>
+        </div>
+        <button type="submit" class="login-button" id="submitBtn">
+            <span>Entrar</span>
+        </button>
+    </form>
+
+    <div class="support-info">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        Responsável pelo envio de notas? Contate o suporte para liberar seu acesso.
     </div>
-    <div class="form-group">
-      <input type="password" id="password" name="password" placeholder="Senha" required>
-    </div>
-    <button onclick="make_login(event)" type="submit" class="login-button">Entrar</button>
-  </form>
-  <p class="signup-text">Não possui uma conta?</p>
-  <p class="support-info">
-    Caso seja uma funcionária responsável pelo envio de notas fiscais,
-    contate o suporte para criação de sua conta.
-  </p>
 </div>
 
-</body>
 <script>
-  function make_login(event) {
-    event.preventDefault();
+    // Gerenciador de Tema
+    const themeBtn = document.getElementById('themeBtn');
+    const htmlEl = document.documentElement;
+    
+    const setTheme = (theme) => {
+        htmlEl.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        themeBtn.innerHTML = theme === 'light' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    };
 
-    fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        login: document.getElementById('username').value,
-        senha: document.getElementById('password').value
-      })
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        // Em vez de um alert, loga a mensagem de erro no console
-        console.error('Erro de autenticação: Usuário ou senha incorretos.');
-        // Lança um erro para que o bloco .catch seja executado
-        throw new Error('Usuário ou senha incorretos.');
-      }
-    })
-    .then(data => {
-      if (data.status === 'success') {
-        // Loga a mensagem de sucesso no console
-        console.log('Login realizado com sucesso!');
-        window.location.href = '/home';
-      } else {
-        // Loga a falha de login no console
-        console.error('Falha no login. Verifique suas credenciais.');
-      }
-    })
-    .catch(error => {
-      // Loga erros de rede ou outros no console
-      console.error('Ocorreu um erro na requisição:', error);
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+
+    themeBtn.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-theme');
+        setTheme(currentTheme === 'light' ? 'dark' : 'light');
     });
-  }
+
+    // Função de Login
+    async function make_login(event) {
+        event.preventDefault();
+        const errorMsg = document.getElementById('error-msg');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        errorMsg.style.display = 'none';
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Autenticando...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    login: document.getElementById('username').value,
+                    senha: document.getElementById('password').value
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                window.location.href = '/home';
+            } else {
+                throw new Error();
+            }
+        } catch (error) {
+            errorMsg.style.display = 'block';
+            submitBtn.innerHTML = 'Entrar';
+            submitBtn.style.opacity = '1';
+            submitBtn.disabled = false;
+        }
+    }
 </script>
+
+</body>
 </html>

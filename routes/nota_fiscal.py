@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, jsonify
-from models.models import Contrato, Produto, Registros, NotaFiscal, ContratoProduto, ControleGasto, Lote, ContratoProdutoLote, ContratoLote
+from models.models import Contrato,User, Produto, Registros, NotaFiscal, ContratoProduto, ControleGasto, Lote, ContratoProdutoLote, ContratoLote
 from config_db import db
 import traceback
 from decimal import Decimal
@@ -15,19 +15,24 @@ def cadastro_nota_fiscal_page():
     Rota para cadastrar uma nova Nota Fiscal (POST) e para renderizar 
     a página de seleção de contratos/lotes (GET).
     """
-    # Obtenção do ID do usuário logado
-    usuario_id_logado = get_username_from_cookie()
+    # 1. Obtém o nome (string) do usuário logado (ex: 'biel')
+    username_sessao = get_username_from_cookie()
 
     # Se a requisição for POST (salvar NF)
     if request.method == 'POST':
-        # ----------------------------------------------------
-        # Lógica de Cadastro (POST) - Recebe e SALVA
-        # ----------------------------------------------------
         try:
             data = request.get_json()
 
             if not data:
                 return jsonify({"message": "Dados JSON não fornecidos"}), 400
+
+            # --- CORREÇÃO DO ERRO 1366: BUSCA O ID NUMÉRICO DO USER ---
+            user_obj = User.query.filter_by(usuario=username_sessao).first()
+            if not user_obj:
+                return jsonify({"message": f"Usuário '{username_sessao}' não encontrado no sistema."}), 401
+            
+            usuario_id_real = user_obj.id  # Agora temos o ID inteiro (ex: 1)
+            # ---------------------------------------------------------
 
             nome_nf = data.get('nome_nf')
             data_emissao = data.get('data_emissao')
@@ -35,40 +40,31 @@ def cadastro_nota_fiscal_page():
             lote_id = data.get('lote_id')
             produtos_data = data.get('produtos', [])
 
-            # Validação de campos obrigatórios
             if not all([nome_nf, data_emissao, contrato_id, lote_id, produtos_data]):
-                print(f"DEBUG: Dados faltantes: nome_nf={nome_nf}, data_emissao={data_emissao}, contrato_id={contrato_id}, lote_id={lote_id}, produtos_data={len(produtos_data)}")
-                return jsonify({"message": "Campos obrigatórios faltando (nome_nf, data_emissao, contrato_id, lote_id, produtos_data). Detalhes no console do servidor."}), 400
+                return jsonify({"message": "Campos obrigatórios faltando."}), 400
             
-            # Busca o objeto Contrato ANTES do loop, pois é o mesmo para todos os itens.
             contrato_obj = Contrato.query.get(contrato_id)
             if not contrato_obj:
                 return jsonify({"message": "Contrato não encontrado."}), 404
                 
-            # Verifica se o Contrato e Lote existem e estão associados
             if not ContratoLote.query.filter_by(contrato_id=contrato_id, lote_id=lote_id).first():
-                return jsonify({"message": "O Lote selecionado não está associado ao Contrato fornecido."}), 400
+                return jsonify({"message": "O Lote selecionado não está associado ao Contrato."}), 400
 
-            # Verifica NF existente
             nf_existente = NotaFiscal.query.filter_by(nome_nf=nome_nf).first()
             if nf_existente:
-                 return jsonify({"message": f"A Nota Fiscal com o nome {nome_nf} já está cadastrada."}), 409
+                 return jsonify({"message": f"A Nota Fiscal {nome_nf} já está cadastrada."}), 409
             
-            # --- Início do processamento dos itens da Nota Fiscal ---
-            
+            # --- Início do processamento dos itens ---
             for prod_item in produtos_data:
                 produto_id = prod_item.get('produto_id')
                 quantidade_recebida = Decimal(str(prod_item.get('quantidade_recebida', 0)))
                 preco_unitario_nf = Decimal(str(prod_item.get('preco_unitario_nf', 0)))
-                
                 gasto_do_item = quantidade_recebida * preco_unitario_nf
                 
-                # BUSCA O OBJETO PRODUTO AQUI para usar a descrição na mensagem
                 produto_obj = Produto.query.get(produto_id)
                 produto_descricao = produto_obj.descricao if produto_obj else f"ID {produto_id}"
 
-                
-                # 1. Salva o item na NotaFiscal (NotaFiscal)
+                # 1. Salva o item na NotaFiscal
                 nova_nf_item = NotaFiscal(
                     nome_nf=nome_nf,
                     data_emissao=data_emissao,
@@ -80,7 +76,7 @@ def cadastro_nota_fiscal_page():
                 )
                 db.session.add(nova_nf_item)
                 
-                # 2. Atualiza/Insere no ControleGasto (Agregado por Contrato/Produto)
+                # 2. Atualiza ControleGasto
                 controle_gasto_item = ControleGasto.query.filter_by(
                     contrato_id=contrato_id,
                     produto_id=produto_id
@@ -90,7 +86,6 @@ def cadastro_nota_fiscal_page():
                     controle_gasto_item.gasto_total += gasto_do_item
                     controle_gasto_item.quantidade += quantidade_recebida
                     id_linha_controle = controle_gasto_item.id
-                    # PADRONIZAÇÃO: UPDATE
                     tipo_acao = "CG_UPDATE_GASTO"
                 else:
                     novo_controle = ControleGasto(
@@ -101,97 +96,59 @@ def cadastro_nota_fiscal_page():
                         quantidade=quantidade_recebida
                     )
                     db.session.add(novo_controle)
-                    db.session.flush() # Obtém o ID para o registro de log
+                    db.session.flush() 
                     id_linha_controle = novo_controle.id
-                    # PADRONIZAÇÃO: CREATE
                     tipo_acao = "CG_CREATE_GASTO"
                 
-                db.session.flush() # Garante a quantidade mais recente para o cálculo de alerta
+                db.session.flush() 
 
-                # 3. VERIFICAÇÃO DE LIMITE E CRIAÇÃO DO REGISTRO (POR PRODUTO)
-                
-                # A: Obter o limite máximo (quantidade_max) do ContratoProduto/Lote
+                # 3. VERIFICAÇÃO DE ALERTA
                 limite_produto = ContratoProduto.query.filter_by(
                     contrato_id=contrato_id, 
                     lote_id=lote_id,
                     produto_id=produto_id
                 ).first()
                 
-                if not limite_produto:
-                    # Se não houver ContratoProduto, apenas registra o lançamento e segue
-                    # O registro de log será feito abaixo, mas sem alerta.
-                    quantidade_max = 0
-                    percentual_restante = 1.0
-                else:
-                    quantidade_max = float(limite_produto.quantidade_max) 
-                
-                quantidade_consumida = float(controle_gasto_item.quantidade if controle_gasto_item else novo_controle.quantidade)
-                
-                if quantidade_max <= 0:
-                    percentual_restante = 1.0 
-                else:
-                    percentual_restante = (quantidade_max - quantidade_consumida) / quantidade_max
+                alerta = 0
+                percentual_restante = 1.0
+                if limite_produto and float(limite_produto.quantidade_max) > 0:
+                    quantidade_max = float(limite_produto.quantidade_max)
+                    qtd_atual = float(controle_gasto_item.quantidade if controle_gasto_item else novo_controle.quantidade)
+                    percentual_restante = (quantidade_max - qtd_atual) / quantidade_max
 
-                # B: Definir o valor de Alerta e MENSAGEM AJUSTADA
-                
-                alerta = 0 # Padrão: 0 (Sem alerta)
-                
-                # MENSAGEM PADRÃO
-                mensagem_alerta = (
-                    f"Nota Fiscal '{nome_nf}' lançada para o Contrato '{contrato_obj.nome}' "
-                    f"do produto '{produto_descricao}'."
-                )
+                mensagem_alerta = f"Nota Fiscal '{nome_nf}' lançada para o Contrato '{contrato_obj.nome}' do produto '{produto_descricao}'."
                 
                 if percentual_restante <= 0.25:
-                    alerta = 2 # Crítico (25% ou menos)
-                    mensagem_alerta += (
-                        f" ALERTA CRÍTICO: Restam somente {percentual_restante * 100:.2f}% "
-                        f"do estoque máximo contratado!"
-                    )
+                    alerta = 2
+                    mensagem_alerta += f" ALERTA CRÍTICO: Restam {percentual_restante * 100:.2f}% do estoque!"
                 elif percentual_restante <= 0.50:
-                    alerta = 1 # Médio (50% ou menos)
-                    mensagem_alerta += (
-                        f" ALERTA: Restam {percentual_restante * 100:.2f}% "
-                        f"do estoque máximo contratado."
-                    )
-                # Se não houver limite de produto, apenas registra a mensagem padrão (alerta=0)
+                    alerta = 1
+                    mensagem_alerta += f" ALERTA: Restam {percentual_restante * 100:.2f}% do estoque."
 
-                # C: Salvar o registro na tabela 'Registros'
+                # --- REGISTRO DE LOG COM O ID CORRETO ---
                 novo_registro = Registros(
                     mensagem=mensagem_alerta,
-                    usuario_id=usuario_id_logado,
+                    usuario_id=usuario_id_real, # <--- AQUI ESTÁ A SOLUÇÃO
                     tabela="ControleGasto", 
                     id_linha=id_linha_controle,
-                    tipo_acao=tipo_acao, # Usando o valor padronizado (CG_CREATE_GASTO ou CG_UPDATE_GASTO)
+                    tipo_acao=tipo_acao,
                     alerta=alerta
                 )
                 db.session.add(novo_registro)
 
-            # 4. Commit de todas as mudanças
             db.session.commit()
-            
-            return jsonify({
-                "message": "Nota Fiscal e controle de gastos atualizados com sucesso!"
-            }), 201
+            return jsonify({"message": "Nota Fiscal e controle de gastos atualizados com sucesso!"}), 201
 
         except Exception as e:
             db.session.rollback()
-            print("\n" + "#"*50)
-            print(f"ERRO CRÍTICO no backend ao salvar Nota Fiscal: {e}")
             traceback.print_exc()
-            print("#"*50 + "\n")
             return jsonify({"message": f"Erro interno do servidor: {str(e)}"}), 500
 
-    # Se a requisição for GET (visualizar página)
-    # ... (O código da requisição GET e as rotas auxiliares permanecem inalterados) ...
+    # Se a requisição for GET
     elif request.method == 'GET':
-        # ----------------------------------------------------
-        # Lógica de Visualização (GET) - Envia Contratos e Lotes
-        # ----------------------------------------------------
         validate = validate_login_from_cookies()
         if validate:
             todos_contratos = Contrato.query.order_by(Contrato.nome).all()
-            
             lotes_por_contrato = {}
             
             contrato_lotes_db = db.session.query(ContratoLote, Lote)\
@@ -215,9 +172,6 @@ def cadastro_nota_fiscal_page():
                                     lotes_map=lotes_por_contrato) 
         else:
             return "Erro de autenticação. Por favor, faça login novamente."
-    
-    return jsonify({"message": "Método de requisição não suportado."}), 405
-
 
 @nota_fiscal_route.route('/notafiscal/visualizar', methods=['GET'])
 def visualizar_notas_fiscais_page():
