@@ -97,12 +97,37 @@ def add_contrato_only():
         print(f"Erro ao criar contrato: {e}")
         return jsonify({"message": f"Erro interno do servidor: {str(e)}"}), 500
 
-@contrato_route.route('/contrato/produtos_por_contrato/<int:contrato_id>', methods=['GET'])
-def get_produtos_por_contrato(contrato_id):
-    
-    lista_produtos = contrato_service.lista_produtos(contrato_id)
+@contrato_route.route('/contrato/produtos_por_contrato_lote/<int:contrato_id>/<int:lote_id>', methods=['GET'])
+def get_produtos_por_contrato_lote(contrato_id, lote_id):
+    """
+    Busca os produtos vinculados ao contrato e lote.
+    Acessa os dados através do relacionamento com a tabela Produto.
+    """
+    try:
+        # Busca na tabela ContratoProduto
+        produtos_vinculados = ContratoProduto.query.filter_by(
+            contrato_id=contrato_id, 
+            lote_id=lote_id
+        ).all()
 
-    if not lista_produtos:
-        return jsonify({"message": "Nenhum produto encontrado para este contrato."}), 404
+        if not produtos_vinculados:
+            return jsonify([]), 200
 
-    return jsonify(lista_produtos)
+        resultado = []
+        for p in produtos_vinculados:
+            # p.produto acessa a classe Produto (onde estão nome e descricao)
+            # p.id é o ID da tabela ContratoProduto
+            # p.produto_id é o ID da tabela Produto (o que o JS espera)
+            
+            resultado.append({
+                'id': p.produto_id,         
+                'nome': p.produto.nome if p.produto else "Sem Código",
+                'descricao': p.produto.descricao if p.produto else "Sem Descrição",
+                'preco_unitario': float(p.preco_unitario) if p.preco_unitario else 0.0
+            })
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        print(f"Erro ao buscar produtos: {e}")
+        return jsonify({"message": f"Erro interno: {str(e)}"}), 500

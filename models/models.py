@@ -44,7 +44,7 @@ class Produto(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    descricao = db.Column(db.String(255), nullable=False)
+    descricao = db.Column(db.Text, nullable=False)
     
     contratos = db.relationship('ContratoProduto', backref='produto', lazy=True)
     gastos = db.relationship('ControleGasto', backref='produto', lazy=True)

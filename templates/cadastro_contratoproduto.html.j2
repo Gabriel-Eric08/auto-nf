@@ -31,13 +31,17 @@
 
         body { 
             font-family: 'Poppins', sans-serif; 
+            font-weight: 300;
+            -webkit-font-smoothing: antialiased;
             background-color: var(--bg-body); 
             color: var(--text-color); 
-            padding-top: 90px; /* Ajuste para não cobrir o conteúdo */
+            padding-top: 90px; 
             transition: var(--transition);
         }
 
-        /* --- NAVBAR MODERNA --- */
+        h2, .section-title { font-weight: 700; }
+        .nav-link { font-weight: 500; }
+
         .navbar-custom {
             background: var(--nav-bg);
             backdrop-filter: blur(12px);
@@ -48,144 +52,32 @@
             z-index: 1030;
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color) !important;
-            font-size: 1.4rem;
-        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; font-size: 1.4rem; }
 
-        .nav-link {
-            color: var(--text-color) !important;
-            font-weight: 500;
-            transition: var(--transition);
-            margin: 0 5px;
-        }
+        .nav-link { color: var(--text-color) !important; transition: var(--transition); margin: 0 5px; }
+        .nav-link:hover { color: var(--primary-color) !important; transform: translateY(-1px); }
 
-        .nav-link:hover {
-            color: var(--primary-color) !important;
-            transform: translateY(-1px);
-        }
+        .dropdown-menu { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background-color: var(--card-bg); padding: 10px; }
+        .dropdown-item { border-radius: 8px; padding: 10px 20px; color: var(--text-color); }
+        .dropdown-item:hover { background-color: var(--primary-color); color: white !important; }
 
-        .dropdown-menu {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            background-color: var(--card-bg);
-            padding: 10px;
-        }
+        .card-custom { background: var(--card-bg); border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .card-header-custom { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .section-title { color: var(--primary-color); margin: 0; font-size: 1.1rem; }
 
-        .dropdown-item {
-            border-radius: 8px;
-            padding: 10px 20px;
-            color: var(--text-color);
-        }
+        .info-display { background: #f0ebf8; color: var(--primary-color); border-radius: 10px; padding: 0.6rem 1rem; font-weight: 500; display: block; font-size: 0.9rem; }
 
-        .dropdown-item:hover {
-            background-color: var(--primary-color);
-            color: white !important;
-        }
-
-        @media (min-width: 992px) {
-            .nav-item.dropdown:hover .dropdown-menu {
-                display: block;
-                animation: fadeInUp 0.3s ease;
-            }
-        }
-
-        /* --- ESTILOS DO CONTEÚDO --- */
-        .card-custom {
-            background: var(--card-bg);
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header-custom {
-            padding: 1.2rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .section-title { font-weight: 700; color: var(--primary-color); margin: 0; font-size: 1.1rem; }
-
-        .info-display {
-            background: #f0ebf8;
-            color: var(--primary-color);
-            border-radius: 10px;
-            padding: 0.6rem 1rem;
-            font-weight: 500;
-            display: block;
-            font-size: 0.9rem;
-        }
-
-        .debug-monitor {
-            background: #1e1e1e;
-            color: #4af626;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-left: 4px solid var(--primary-color);
-        }
+        .debug-monitor { background: #1e1e1e; color: #4af626; font-family: 'Courier New', monospace; font-size: 0.75rem; padding: 12px; border-radius: 10px; margin-top: 15px; border-left: 4px solid var(--primary-color); }
 
         .table-custom thead th { background: var(--primary-color); color: white; border: none; }
-        
-        .btn-primary-custom { 
-            background: var(--primary-color); 
-            color: white; 
-            border-radius: 10px; 
-            border: none; 
-            padding: 10px 20px; 
-            transition: 0.3s; 
-        }
-        
+        .btn-primary-custom { background: var(--primary-color); color: white; border-radius: 10px; border: none; padding: 10px 20px; transition: 0.3s; }
         .btn-primary-custom:hover { background: var(--primary-hover); transform: translateY(-2px); color: white; }
         
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
+        .upload-area { border: 2px dashed var(--border-color); border-radius: 15px; padding: 20px; text-align: center; }
 
-        .theme-switch {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
+        .theme-switch { background: var(--primary-color); color: white; border: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        body {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300; /* Define o peso padrão como leve */
-    -webkit-font-smoothing: antialiased; /* Suaviza a fonte em navegadores Chrome/Safari */
-    -moz-osx-font-smoothing: grayscale; /* Suaviza a fonte no Firefox */
-    background-color: var(--bg-body);
-    color: var(--text-color);
-}
-
-/* Certifique-se de que os títulos não fiquem excessivamente pesados */
-h2, .section-title {
-    font-weight: 700; /* Somente títulos usam negrito real */
-}
-
-.nav-link {
-    font-weight: 500; /* Peso médio para o menu */
-}   
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -195,11 +87,9 @@ h2, .section-title {
         <a class="navbar-brand" href="{{ url_for('home.home') }}">
             <i class="fa-solid fa-scale-balanced me-2"></i>Sec. Mulher PE
         </a>
-        
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <i class="fa-solid fa-bars text-primary"></i>
         </button>
-
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item dropdown">
@@ -226,16 +116,9 @@ h2, .section-title {
                     </ul>
                 </li>
             </ul>
-
             <div class="d-flex align-items-center">
-                <a href="{{ url_for('Notificacoes.notificaoes_page') }}" class="nav-link px-3">
-                    <i class="fa-solid fa-bell"></i>
-                </a>
-                
-                <button class="theme-switch ms-2" id="themeBtn">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-
+                <a href="{{ url_for('Notificacoes.notificaoes_page') }}" class="nav-link px-3"><i class="fa-solid fa-bell"></i></a>
+                <button class="theme-switch ms-2" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
                 <div class="dropdown ms-3">
                     <a class="nav-link p-0" href="#" data-bs-toggle="dropdown">
                         <i class="fa-solid fa-circle-user fa-2xl" style="color: var(--primary-color)"></i>
@@ -253,41 +136,38 @@ h2, .section-title {
     <div class="row">
         <div class="col-12 mb-4">
             <h2 class="fw-bold" style="color: var(--primary-color)">Estoque do Contrato</h2>
-            <p class="text-muted">Gestão de itens com verificação de Lotes (Relação MTM).</p>
+            <p class="text-muted">Gestão de itens com segmentação por Lotes.</p>
         </div>
 
         <div class="col-lg-4">
             <div class="card card-custom shadow-sm">
                 <div class="card-header-custom">
-                    <h5 class="section-title"><i class="fa-solid fa-file-contract me-2"></i>Contrato</h5>
+                    <h5 class="section-title"><i class="fa-solid fa-file-contract me-2"></i>Contrato & Lote</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Selecione o Contrato</label>
+                        <label class="form-label">1. Selecione o Contrato</label>
                         <select class="form-select shadow-sm" id="selectContrato">
                             <option selected disabled value="">Escolha um contrato...</option>
                             {% for contrato in contratos %}
-                                {% set lid = "" %}
-                                {% set lnome = "Sem Lote Vinculado" %}
-                                {% if contrato.lotes_associados and contrato.lotes_associados|length > 0 %}
-                                    {% set lid = contrato.lotes_associados[0].lote_id %}
-                                    {% set lnome = contrato.lotes_associados[0].lote.nome_lote %}
-                                {% endif %}
-                                <option value="{{ contrato.id }}" 
-                                        data-tipo="{{ contrato.tipo }}" 
-                                        data-lote-id="{{ lid }}"
-                                        data-lote-nome="{{ lnome }}">
+                                {# Gerando a lista de lotes via tojson para segurança no JS #}
+                                {% set lista_lotes = [] %}
+                                {% for assoc in contrato.lotes_associados %}
+                                    {% set _ = lista_lotes.append({'id': assoc.lote.id, 'nome': assoc.lote.nome_lote}) %}
+                                {% endfor %}
+                                <option value="{{ contrato.id }}" data-lotes='{{ lista_lotes | tojson }}'>
                                     {{ contrato.nome }}
                                 </option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <input type="hidden" id="inputLoteId">
-
-                    <div class="mb-2">
-                        <label class="form-label">Lote Associado</label>
-                        <span class="info-display" id="loteNomeDisplay">---</span>
+                    <div class="mb-3">
+                        <label class="form-label">2. Selecione o Lote</label>
+                        <select class="form-select shadow-sm" id="selectLote" disabled>
+                            <option selected disabled value="">Aguardando contrato...</option>
+                        </select>
+                        <input type="hidden" id="inputLoteId">
                     </div>
 
                     <div class="debug-monitor">
@@ -375,7 +255,7 @@ h2, .section-title {
 <script>
     const fila_produtos = [];
 
-    // Tema
+    // TEMA
     const themeBtn = document.getElementById('themeBtn');
     themeBtn.addEventListener('click', () => {
         const html = document.documentElement;
@@ -384,25 +264,53 @@ h2, .section-title {
         themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     });
 
-    // LÓGICA DE SELEÇÃO E DIAGNÓSTICO
-    document.getElementById('selectContrato').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        const cid = this.value;
-        const lid = opt.getAttribute('data-lote-id');
-        const lnome = opt.getAttribute('data-lote-nome');
-
-        document.getElementById('loteNomeDisplay').textContent = lnome || '---';
-        document.getElementById('inputLoteId').value = lid || '';
-        document.getElementById('log-cid').textContent = cid;
+    // LÓGICA DE SELEÇÃO DINÂMICA
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectContrato = document.getElementById('selectContrato');
+        const selectLote = document.getElementById('selectLote');
+        const inputLoteId = document.getElementById('inputLoteId');
+        const logCid = document.getElementById('log-cid');
         const logLid = document.getElementById('log-lid');
-        
-        if (lid) {
-            logLid.textContent = `ID #${lid} - OK`;
+
+        selectContrato.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const cid = this.value;
+            logCid.textContent = cid;
+
+            try {
+                // Parse seguro dos lotes vindos do data-attribute
+                const lotes = JSON.parse(opt.getAttribute('data-lotes') || '[]');
+                
+                selectLote.innerHTML = '<option selected disabled value="">Escolha o lote...</option>';
+                
+                if (lotes.length > 0) {
+                    selectLote.disabled = false;
+                    lotes.forEach(lote => {
+                        let newOpt = document.createElement('option');
+                        newOpt.value = lote.id;
+                        newOpt.text = lote.nome;
+                        selectLote.add(newOpt);
+                    });
+                    logLid.textContent = "Contrato OK! Selecione o lote.";
+                    logLid.className = "text-warning fw-bold";
+                } else {
+                    selectLote.disabled = true;
+                    selectLote.innerHTML = '<option selected disabled value="">Sem lotes vinculados</option>';
+                    logLid.textContent = "ERRO: Contrato sem Lotes!";
+                    logLid.className = "text-danger fw-bold";
+                }
+            } catch (e) {
+                console.error("Erro ao processar lotes:", e);
+                logLid.textContent = "Erro ao carregar lotes.";
+            }
+            inputLoteId.value = "";
+        });
+
+        selectLote.addEventListener('change', function() {
+            inputLoteId.value = this.value;
+            logLid.textContent = `Lote ID #${this.value} Selecionado`;
             logLid.className = "text-success fw-bold";
-        } else {
-            logLid.textContent = "NÃO ENCONTRADO NO BANCO!";
-            logLid.className = "text-danger fw-bold";
-        }
+        });
     });
 
     // ADICIONAR ITEM À LISTA
@@ -418,11 +326,17 @@ h2, .section-title {
             codigo_produto: cod,
             descricao_produto: desc,
             quantidade_max: qtd,
-            preco_unitario: vlr
+            preco_unitario: vlr || 0
         });
 
         const row = `<tr><td>${cod}</td><td>${desc}</td><td>${qtd}</td><td>R$ ${(qtd * (vlr || 0)).toFixed(2)}</td></tr>`;
         document.getElementById('tabela-produtos').insertAdjacentHTML('afterbegin', row);
+        
+        // Limpar campos de produto
+        document.getElementById('codigoProduto').value = '';
+        document.getElementById('descricaoProduto').value = '';
+        document.getElementById('quantidade').value = '1';
+        document.getElementById('valorUnitario').value = '';
     });
 
     // SALVAR TUDO
@@ -430,8 +344,8 @@ h2, .section-title {
         const cid = document.getElementById('selectContrato').value;
         const lid = document.getElementById('inputLoteId').value;
 
-        if (!cid || !lid) return alert("ERRO: Lote não identificado.");
-        if (fila_produtos.length === 0) return alert("Adicione produtos primeiro.");
+        if (!cid || !lid) return alert("Selecione Contrato e Lote.");
+        if (fila_produtos.length === 0) return alert("Adicione produtos à lista.");
 
         this.disabled = true;
         this.innerHTML = "Processando...";
@@ -447,11 +361,11 @@ h2, .section-title {
                 })
             });
 
+            const res = await response.json();
             if (response.ok) {
-                alert("Sucesso!");
+                alert("Itens salvos com sucesso!");
                 location.reload();
             } else {
-                const res = await response.json();
                 alert("Erro: " + res.message);
             }
         } catch (e) {
@@ -462,14 +376,14 @@ h2, .section-title {
         }
     });
 
-    // IMPORTAÇÃO CSV
+    // UPLOAD ARQUIVO
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const cid = document.getElementById('selectContrato').value;
         const lid = document.getElementById('inputLoteId').value;
         const file = document.getElementById('fileUpload').files[0];
 
-        if (!cid || !lid || !file) return alert("Selecione contrato e arquivo.");
+        if (!cid || !lid || !file) return alert("Selecione contrato, lote e o arquivo.");
 
         const fd = new FormData();
         fd.append('file', file);
@@ -478,16 +392,20 @@ h2, .section-title {
 
         const btn = document.getElementById('uploadBtn');
         btn.disabled = true;
+        btn.innerHTML = "Enviando...";
 
         try {
             const resp = await fetch('/upload-contratoproduto', { method: 'POST', body: fd });
             const data = await resp.json();
             alert(data.message);
             if (resp.ok) location.reload();
-        } catch (e) { alert("Erro no upload"); }
-        finally { btn.disabled = false; }
+        } catch (e) { 
+            alert("Erro no upload"); 
+        } finally { 
+            btn.disabled = false;
+            btn.innerHTML = "Importar Planilha";
+        }
     });
 </script>
-
 </body>
 </html>
